@@ -7,6 +7,7 @@ async function bootstrap() {
   SwaggerConfigInit(app);
   await app.listen(PORT, () => {
     console.log(`app running on port ${PORT}: http://localhost:${PORT}`);
+    console.log(`swagger running on url: http://localhost:${PORT}/swagger`);
   });
 }
 bootstrap();
