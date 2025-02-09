@@ -8,7 +8,7 @@ export class TypeOrmDbConfig implements TypeOrmOptionsFactory {
         return {
             type: "postgres",
             database: DB,
-            port: parseInt(DBPORT || '5432', 10),
+            port: DBPORT,
             host: DBHOST,
             username: DBUSERNAME,
             password: DBPASSWORD,
