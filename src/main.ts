@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './modules/app/app.module';
 import { SwaggerConfigInit } from './config/swagger.config';
-const {PORT} = process.env ?? 3000
+const {PORT} = process.env
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   SwaggerConfigInit(app);
