@@ -1,9 +1,6 @@
-import { Injectable } from "@nestjs/common";
-import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from "@nestjs/typeorm";
+import { TypeOrmModuleOptions } from "@nestjs/typeorm";
 
-@Injectable()
-export class TypeOrmDbConfig implements TypeOrmOptionsFactory {
-    createTypeOrmOptions(connectionName?: string): Promise<TypeOrmModuleOptions> | TypeOrmModuleOptions {
+export function TypeOrmDbConfig(): TypeOrmModuleOptions {
         const {DB, DBHOST, DBUSERNAME, DBPORT, DBPASSWORD} = process.env;
         return {
             type: "postgres",
@@ -19,4 +16,3 @@ export class TypeOrmDbConfig implements TypeOrmOptionsFactory {
             ]
         }
     }
-}
