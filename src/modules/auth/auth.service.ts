@@ -1,3 +1,4 @@
+import { TokenService } from './tokens.service';
 import {
   BadRequestException,
   Injectable,
@@ -14,6 +15,10 @@ import { ProfileEntity } from '../user/entities/profile.entity';
 import { AuthMessage, BadRequestMessage } from 'src/common/enums/message.enum';
 import { OtpEntity } from '../user/entities/otp.entity';
 import { randomInt } from 'crypto';
+import { JwtService } from '@nestjs/jwt';
+import { Response } from 'express';
+import { cookieKeys } from 'src/common/enums/cookie.enum';
+import { AuthResponse } from './types/response';
 
 @Injectable()
 export class AuthService {
@@ -24,29 +29,35 @@ export class AuthService {
     private profileRepository: Repository<ProfileEntity>,
     @InjectRepository(OtpEntity)
     private otpRepository: Repository<OtpEntity>,
+    private tokenService: TokenService,
   ) {}
-  async userExistence(authDto: AuthDto) {
+  async userExistence(authDto: AuthDto, res: Response) {
     const { username, method, type } = authDto;
+    let result: AuthResponse;
     switch (type) {
       case AuthTypeEnum.Login:
-        return this.login(username, method);
+        result = await this.login(username, method, res);
+        return this.sendResponse(result, res);
       case AuthTypeEnum.Register:
-        return this.register(username, method);
+        result = await this.register(username, method, res);
+        return this.sendResponse(result, res);
       default:
         throw new UnauthorizedException('Invalid auth type');
     }
   }
-  async login(username: string, method: AuthMethod) {
+  async login(username: string, method: AuthMethod, res: Response) {
     const validUsername = this.usernameValidator(username, method);
     let user: UserEntity = await this.checkExistUser(method, validUsername);
     if (!user) throw new UnauthorizedException(AuthMessage.UserNotFound);
     const otp = await this.SaveOtp(user.id);
+    const token = this.tokenService.createOtpToken({ userId: user.id });
+    res.cookie(cookieKeys.OTP, token, { httpOnly: true });
     return {
-      message: `کد اعتبارسنجی به ${method} شما ارسال شد`,
       otpcode: otp.code,
+      token,
     };
   }
-  async register(username: string, method: AuthMethod) {
+  async register(username: string, method: AuthMethod, res: Response) {
     const validUsername = this.usernameValidator(username, method);
     let user: UserEntity = await this.checkExistUser(method, validUsername);
     if (user) throw new UnauthorizedException(AuthMessage.InvalidAuthType);
@@ -54,12 +65,22 @@ export class AuthService {
       throw new UnauthorizedException(BadRequestMessage.InvalidRegisterData);
     user = this.userRepository.create({ [method]: username });
     user = await this.userRepository.save(user);
-    await this.userRepository.update(user.id, {username: `m_${user.id},`});
+    await this.userRepository.update(user.id, { username: `m_${user.id},` });
     const otp = await this.SaveOtp(user.id);
+    const token = this.tokenService.createOtpToken({ userId: user.id });
+    res.cookie(cookieKeys.OTP, token, { httpOnly: true });
     return {
-      message: `کد اعتبارسنجی به ${method} شما ارسال شد`,
       otpcode: otp.code,
+      token,
     };
+  }
+  async sendResponse(result: AuthResponse, res: Response) {
+    const { otpcode, token } = result;
+    res.cookie(cookieKeys.OTP, token, { httpOnly: true });
+    res.json({
+      message: AuthMessage.SentOtp,
+      otpcode,
+    });
   }
   async SaveOtp(userId: number) {
     const code = randomInt(10000, 99999).toString();
