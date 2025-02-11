@@ -1,5 +1,6 @@
 export enum EntityNames {
     User='user',
     Profile='user_profile',
-    Otp='user_otp'
+    Otp='user_otp',
+    Category='category',
 }
