@@ -6,6 +6,5 @@ export type JwtPayload = {
     username: string
 }
 export type JwtVerify = {
-    accessToken: string,
-    refreshToken: string,
+    token: string,
 }
