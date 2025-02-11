@@ -14,7 +14,11 @@ import { AuthTypeEnum } from './enums/type.enum';
 import { AuthMethod } from './enums/method.enum';
 import { isEmail, isMobilePhone } from 'class-validator';
 import { ProfileEntity } from '../user/entities/profile.entity';
-import { AuthMessage, BadRequestMessage, PublicMessage } from 'src/common/enums/message.enum';
+import {
+  AuthMessage,
+  BadRequestMessage,
+  PublicMessage,
+} from 'src/common/enums/message.enum';
 import { OtpEntity } from '../user/entities/otp.entity';
 import { randomInt } from 'crypto';
 import { Response, Request } from 'express';
@@ -157,5 +161,18 @@ export class AuthService {
       default:
         throw new UnauthorizedException('Invalid username data');
     }
+  }
+  async validateAccessToken(token: string) {
+    const { userId } = await this.tokenService.verifyJwtToken(token);
+    const user = await this.userRepository.find({
+      where: {id:userId},
+      select: {
+        username:true,
+        phone: true,
+        email: true,
+      }
+    })
+    if (!user) throw new UnauthorizedException(AuthMessage.LoginAgain);
+    return user;
   }
 }
