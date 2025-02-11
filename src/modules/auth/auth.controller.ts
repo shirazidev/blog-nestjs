@@ -14,5 +14,4 @@ export class AuthController {
   userExistence(@Body() authDto: AuthDto) {
     return this.authService.userExistence(authDto);
   }
-
 }
