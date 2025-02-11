@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res, UseGuards, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { AuthDto, CheckOtpDto } from './dto/auth.dto';
 import { SwaggerConsumesEnum } from 'src/common/enums/swagger-consumes.enum';
-import { Response } from 'express';
+import { Response, Request } from 'express';
+import { AuthGuard } from './guards/auth.guard';
 
 
 @Controller('auth')
@@ -20,7 +21,13 @@ export class AuthController {
   @ApiConsumes(SwaggerConsumesEnum.FORM, SwaggerConsumesEnum.JSON)
   async checkOtp(@Body() checkOtpDto: CheckOtpDto, @Res() res: Response) {
     const result = await this.authService.checkOtp(checkOtpDto);
-    res.json({ message: result.message });
+    res.json({ result });
     // for production projects we use secure cookie names
+  }
+  @Get('/check-auth')
+  @ApiBearerAuth("Authorization")
+  @UseGuards(AuthGuard)
+  async checkAuth(@Req() req: Request) {
+    return req.user;
   }
 }
