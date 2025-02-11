@@ -15,7 +15,6 @@ import { ProfileEntity } from '../user/entities/profile.entity';
 import { AuthMessage, BadRequestMessage } from 'src/common/enums/message.enum';
 import { OtpEntity } from '../user/entities/otp.entity';
 import { randomInt } from 'crypto';
-import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
 import { cookieKeys } from 'src/common/enums/cookie.enum';
 import { AuthResponse } from './types/response';

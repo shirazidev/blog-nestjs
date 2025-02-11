@@ -4,7 +4,6 @@ import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { AuthDto } from './dto/auth.dto';
 import { SwaggerConsumesEnum } from 'src/common/enums/swagger-consumes.enum';
 import { Response } from 'express';
-import { cookieKeys } from 'src/common/enums/cookie.enum';
 
 
 @Controller('auth')
