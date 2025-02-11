@@ -13,5 +13,7 @@ namespace NodeJS {
         // Secrets
         COOKIE_SECRET: string;
         OTP_TOKEN_SECRET: string;
+        ACCESSTOKENJWT: string;
+        REFRESHTOKENJWT: string;
     }
 }
