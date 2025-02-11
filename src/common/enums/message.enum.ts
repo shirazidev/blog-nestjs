@@ -11,6 +11,7 @@ export enum AuthMessage {
     ExpiredCode = "کد اعتبارسنجی منقضی شده است",
     TryAgain = "لطفا دوباره تلاش کنید",
     LoginAgain = "لطفا دوباره وارد شوید",
+    LoginIsRequired = "لطفا وارد حساب کاربری خود شوید",
     }
 export enum NotFoundMessage {
 
