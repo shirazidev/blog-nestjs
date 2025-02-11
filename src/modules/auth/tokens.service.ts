@@ -36,10 +36,9 @@ export class TokenService {
       refreshToken,
     };
   }
-  verifyJwtToken(jwtVerify: JwtVerify) {
+  verifyJwtToken(token: string) {
     try {
-        const {accessToken, refreshToken} = jwtVerify;
-      return this.jwtService.verify(accessToken, {
+      return this.jwtService.verify(token, {
         secret: process.env.ACCESSTOKENJWT,
       });
     } catch (error) {
