@@ -7,6 +7,7 @@ export enum AuthMessage {
     InvalidLogin = 'Invalid login',
     UserNotFound = 'User not found',
     OtpNotExpired = 'کد اعتبارسنجی قبلی شما هنوز منقضی نشده است',
+    SentOtp = "کد اعتبارسنجی به شما ارسال شد",
     }
 export enum NotFoundMessage {
 
