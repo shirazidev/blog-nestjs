@@ -1,10 +1,12 @@
 import { TokenService } from './tokens.service';
 import {
   BadRequestException,
+  Inject,
   Injectable,
+  Scope,
   UnauthorizedException,
 } from '@nestjs/common';
-import { AuthDto } from './dto/auth.dto';
+import { AuthDto, CheckOtpDto } from './dto/auth.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../user/entities/user.entity';
 import { Repository } from 'typeorm';
@@ -12,14 +14,15 @@ import { AuthTypeEnum } from './enums/type.enum';
 import { AuthMethod } from './enums/method.enum';
 import { isEmail, isMobilePhone } from 'class-validator';
 import { ProfileEntity } from '../user/entities/profile.entity';
-import { AuthMessage, BadRequestMessage } from 'src/common/enums/message.enum';
+import { AuthMessage, BadRequestMessage, PublicMessage } from 'src/common/enums/message.enum';
 import { OtpEntity } from '../user/entities/otp.entity';
 import { randomInt } from 'crypto';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 import { cookieKeys } from 'src/common/enums/cookie.enum';
 import { AuthResponse } from './types/response';
+import { REQUEST } from '@nestjs/core';
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class AuthService {
   constructor(
     @InjectRepository(UserEntity)
@@ -29,6 +32,7 @@ export class AuthService {
     @InjectRepository(OtpEntity)
     private otpRepository: Repository<OtpEntity>,
     private tokenService: TokenService,
+    @Inject(REQUEST) private request: Request,
   ) {}
   async userExistence(authDto: AuthDto, res: Response) {
     const { username, method, type } = authDto;
@@ -75,7 +79,10 @@ export class AuthService {
   }
   async sendResponse(result: AuthResponse, res: Response) {
     const { otpcode, token } = result;
-    res.cookie(cookieKeys.OTP, token, { httpOnly: true });
+    res.cookie(cookieKeys.OTP, token, {
+      httpOnly: true,
+      expires: new Date(Date.now() + 60000 * 2),
+    });
     res.json({
       message: AuthMessage.SentOtp,
       otpcode,
@@ -102,7 +109,27 @@ export class AuthService {
     }
     return otp;
   }
-  async checkOtp() {}
+  async checkOtp(checkOtpDto: CheckOtpDto) {
+    const { code } = checkOtpDto;
+    let token = this.request?.cookies[cookieKeys.OTP];
+    let user: any;
+    if (!token) throw new UnauthorizedException(AuthMessage.ExpiredCode);
+    const { userId } = this.tokenService.verifyOtpToken(token);
+    const otp = await this.otpRepository.findOneBy({ userId });
+    const now = new Date();
+    if (!otp || otp.code !== code || otp.expires_in < now)
+      throw new UnauthorizedException(AuthMessage.ExpiredCode);
+
+    user = await this.userRepository.findOneBy({ id: userId });
+    let payload = {
+      userId: user?.id,
+      username: user?.username,
+    };
+    const { accessToken, refreshToken } =
+      this.tokenService.createJwtToken(payload);
+
+    return { accessToken, refreshToken, message: PublicMessage.LoggedIn };
+  }
   async checkExistUser(method: AuthMethod, username: string) {
     let user;
     if (method === AuthMethod.Username) {
