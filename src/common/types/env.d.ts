@@ -9,5 +9,9 @@ namespace NodeJS {
         DBUSERNAME: string;
         DBPASSWORD: string;
         DB: string;
+
+        // Secrets
+        COOKIE_SECRET: string;
+        OTP_TOKEN_SECRET: string;
     }
 }
