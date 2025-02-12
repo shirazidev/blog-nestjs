@@ -1,3 +1,4 @@
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import {
   BadRequestException,
   ConflictException,
@@ -32,8 +33,9 @@ export class CategoryService {
     if (category) throw new ConflictException(ConflictMessage.CategoryTitle);
     return title;
   }
-  findAll() {
-    return this.categoryRepository.find({});
+  async findAll(paginationDto: PaginationDto) {
+    
+    return await this.categoryRepository.find({});
   }
 
   findOne(id: number) {
