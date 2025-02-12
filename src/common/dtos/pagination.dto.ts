@@ -1,8 +1,8 @@
-import { ApiPropertyOptional } from "@nestjs/swagger";
+import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class PaginationDto {
-    @ApiPropertyOptional({type: "integer", required: false})
-    page: number;
-    @ApiPropertyOptional({type: "integer", required: false})
-    limit: number;
+  @ApiPropertyOptional({ type: 'integer', required: false})
+  page: number;
+  @ApiPropertyOptional({ type: 'integer', required: false})
+  limit: number;
 }
