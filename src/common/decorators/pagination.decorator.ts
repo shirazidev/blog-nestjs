@@ -6,10 +6,14 @@ export function Pagination() {
     ApiQuery({
       name: 'page',
       example: 1,
+      required: false,
+      type: "integer",
     }),
     ApiQuery({
       name: 'limit',
       example: 10,
+      required: false,
+      type: "integer",
     }),
   );
 }
