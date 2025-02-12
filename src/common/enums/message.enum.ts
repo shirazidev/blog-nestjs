@@ -21,4 +21,9 @@ export enum ValidationMessage {
 }
 export enum PublicMessage {
     LoggedIn = 'با موفقیت وارد شدید',
+    Created = " با موفقیت ساخته شد."
+}
+
+export enum ConflictMessage {
+    CategoryTitle = "این دسته بندی از قبل وجود دارد.",
 }
