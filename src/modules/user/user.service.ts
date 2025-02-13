@@ -17,6 +17,7 @@ import { AuthMessage, PublicMessage } from 'src/common/enums/message.enum';
 import { REQUEST } from '@nestjs/core';
 import { isDate } from 'class-validator';
 import { Gender } from './enums/gender.enum';
+import { ProfileImages } from './types/files';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UserService {
@@ -28,7 +29,7 @@ export class UserService {
     private tokenService: TokenService,
     @Inject(REQUEST) private req: Request,
   ) {}
-  async changeProfile(files: any, profileDto: ProfileDto) {
+  async changeProfile(files: ProfileImages, profileDto: ProfileDto) {
     let { image_profile, image_bg } = files;
     if (image_profile && image_profile?.length > 0) {
       let [image] = image_profile;
@@ -55,8 +56,8 @@ export class UserService {
         profile.birth_date = new Date(birth_date);
       if (linkedin) profile.linkedin = linkedin;
       if (twitter) profile.twitter = twitter;
-      if(image_bg) profile.image_bg = image_bg;
-      if(image_profile) profile.image_profile = image_profile
+      if(image_bg) profile.image_bg = profileDto.image_bg;
+      if(image_profile) profile.image_profile = profileDto.image_profile
     }
     if (!profile) {
       profile = this.profileRepository.create({
@@ -66,8 +67,8 @@ export class UserService {
         birth_date,
         linkedin,
         twitter,
-        image_bg,
-        image_profile,
+        image_bg: profileDto.image_bg,
+        image_profile: profileDto.image_profile,
         userId: id,
       });
     }
