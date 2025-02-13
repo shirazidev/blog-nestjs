@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   Query,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -38,24 +39,24 @@ export class CategoryController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.categoryService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.categoryService.findOne(id);
   }
 
   @Patch(':id')
   @UseGuards(AuthGuard)
   @ApiConsumes(SwaggerConsumesEnum.FORM, SwaggerConsumesEnum.JSON)
   update(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateCategoryDto: UpdateCategoryDto,
   ) {
-    return this.categoryService.update(+id, updateCategoryDto);
+    return this.categoryService.update(id, updateCategoryDto);
   }
 
   @Delete(':id')
   @UseGuards(AuthGuard)
   @ApiConsumes(SwaggerConsumesEnum.FORM, SwaggerConsumesEnum.JSON)
-  remove(@Param('id') id: string) {
-    return this.categoryService.remove(+id);
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    return await this.categoryService.remove(id);
   }
 }
