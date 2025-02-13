@@ -23,8 +23,10 @@ import { diskStorage } from 'multer';
 import {
   multerDestination,
   multerFilename,
+  multerProfileStorage,
 } from 'src/common/utils/multer.util';
 import { ProfileImages } from './types/files';
+import { UploadedOptionalFiles } from 'src/common/decorators/upload-file.decorator';
 
 @Controller('user')
 @ApiTags('User')
@@ -38,10 +40,7 @@ export class UserController {
         { name: 'image_bg', maxCount: 1 },
       ],
       {
-        storage: diskStorage({
-          destination: multerDestination('user-profile'),
-          filename: multerFilename,
-        }),
+        storage: multerProfileStorage('user-profile'),
       },
     ),
   )
@@ -49,10 +48,15 @@ export class UserController {
   @ApiBearerAuth('Authorization')
   @ApiConsumes(SwaggerConsumesEnum.MULTIPART)
   async changeProfile(
-    @UploadedFiles(new ParseFilePipe({ fileIsRequired: false, validators: [] }))
-    files: ProfileImages,
+    @UploadedOptionalFiles() files: ProfileImages,
     @Body() profileDto: ProfileDto,
   ) {
     return this.userService.changeProfile(files, profileDto);
+  }
+  @Get('/profile')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('Authorization')
+  async profile () {
+    return this.userService.getProfile();
   }
 }
