@@ -28,7 +28,9 @@ export class UserService {
     private tokenService: TokenService,
     @Inject(REQUEST) private req: Request,
   ) {}
-  async changeProfile(profileDto: ProfileDto) {
+  async changeProfile(files: any, profileDto: ProfileDto) {
+    console.log(files);
+    
     const user = this.req.user;
     if (!user) {
       throw new UnauthorizedException(AuthMessage.LoginIsRequired);
