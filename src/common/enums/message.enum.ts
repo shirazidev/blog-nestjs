@@ -18,6 +18,7 @@ export enum NotFoundMessage {
 
 }
 export enum ValidationMessage {
+    ImageFormatIncorrect = "فرمت تصویر باید یکی از فرمت های زیر باشد: png, jpg, jpeg, gif, svg, webp, bmp, tiff, ico, jpe",
 
 }
 export enum PublicMessage {
