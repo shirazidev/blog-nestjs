@@ -14,6 +14,7 @@ export enum AuthMessage {
     LoginIsRequired = "لطفا وارد حساب کاربری خود شوید",
     }
 export enum NotFoundMessage {
+    NotFoundCategory = 'دسته بندی یافت نشد.',
 
 }
 export enum ValidationMessage {
@@ -21,7 +22,9 @@ export enum ValidationMessage {
 }
 export enum PublicMessage {
     LoggedIn = 'با موفقیت وارد شدید',
-    Created = " با موفقیت ساخته شد."
+    Created = " با موفقیت ساخته شد.",
+    Deleted = "با موفقیت حذف شد.",
+    Updated = "با موفقیت به روز رسانی شد"
 }
 
 export enum ConflictMessage {
