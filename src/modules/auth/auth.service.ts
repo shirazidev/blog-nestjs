@@ -164,14 +164,16 @@ export class AuthService {
   }
   async validateAccessToken(token: string) {
     const { userId } = await this.tokenService.verifyJwtToken(token);
-    const user = await this.userRepository.find({
-      where: {id:userId},
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
       select: {
-        username:true,
+        id: true,
+        username: true,
         phone: true,
         email: true,
-      }
-    })
+        profileId: true,
+      },
+    });
     if (!user) throw new UnauthorizedException(AuthMessage.LoginAgain);
     return user;
   }
