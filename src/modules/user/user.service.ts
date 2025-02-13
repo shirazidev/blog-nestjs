@@ -43,8 +43,8 @@ export class UserService {
     if (!user) {
       throw new UnauthorizedException(AuthMessage.LoginIsRequired);
     }
-    const { nick_name, bio, gender, birth_date, linkedin, twitter } =
-      profileDto;
+    let { nick_name, bio, gender, birth_date, linkedin, twitter } = profileDto;
+    birth_date = new Date(birth_date);
     const { id, profileId } = user;
     let profile = await this.profileRepository.findOneBy({ userId: id });
     if (profile) {
@@ -52,8 +52,7 @@ export class UserService {
       if (nick_name) profile.nick_name = nick_name;
       if (gender && Object.values(Gender).includes(gender as any))
         profile.gender = gender;
-      if (birth_date && isDate(birth_date))
-        profile.birth_date = new Date(birth_date);
+      if (birth_date && isDate(birth_date)) profile.birth_date = birth_date;
       if (linkedin) profile.linkedin = linkedin;
       if (twitter) profile.twitter = twitter;
       if (image_bg) profile.image_bg = profileDto.image_bg;
@@ -64,7 +63,7 @@ export class UserService {
         nick_name,
         bio,
         gender,
-        birth_date,
+        birth_date: birth_date,
         linkedin,
         twitter,
         image_bg: profileDto.image_bg,
@@ -83,18 +82,10 @@ export class UserService {
     if (!user) {
       throw new UnauthorizedException(AuthMessage.LoginIsRequired);
     }
-    const profile = await this.profileRepository.findOne({
-      where: { userId: user.id },
-      relations: ['user'],
-      select: {
-        user:{
-          id: true,
-          email: true,
-          username: true,
-          created_at: true,
-          updated_at: true,
-        }
-      }
+    const profile = await this.userRepository.findOne({
+      where: { id: user.id },
+      relations: ['profile'],
+      select: ['id', 'username', 'email', 'phone', 'created_at', 'updated_at','profile']
     });
     return profile;
   }
