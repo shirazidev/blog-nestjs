@@ -24,6 +24,7 @@ import {
   multerDestination,
   multerFilename,
 } from 'src/common/utils/multer.util';
+import { ProfileImages } from './types/files';
 
 @Controller('user')
 @ApiTags('User')
@@ -49,7 +50,7 @@ export class UserController {
   @ApiConsumes(SwaggerConsumesEnum.MULTIPART)
   async changeProfile(
     @UploadedFiles(new ParseFilePipe({ fileIsRequired: false, validators: [] }))
-    files: any,
+    files: ProfileImages,
     @Body() profileDto: ProfileDto,
   ) {
     return this.userService.changeProfile(files, profileDto);
