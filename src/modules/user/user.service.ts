@@ -29,8 +29,15 @@ export class UserService {
     @Inject(REQUEST) private req: Request,
   ) {}
   async changeProfile(files: any, profileDto: ProfileDto) {
-    console.log(files);
-    
+    let { image_profile, image_bg } = files;
+    if (image_profile && image_profile?.length > 0) {
+      let [image] = image_profile;
+      profileDto.image_profile = image.path;
+    }
+    if (image_bg && image_bg?.length > 0) {
+      let [image] = image_bg;
+      profileDto.image_bg = image.path;
+    }
     const user = this.req.user;
     if (!user) {
       throw new UnauthorizedException(AuthMessage.LoginIsRequired);
@@ -40,23 +47,29 @@ export class UserService {
     const { id, profileId } = user;
     let profile = await this.profileRepository.findOneBy({ userId: id });
     if (profile) {
-        if (bio) profile.bio = bio;
-        if(nick_name) profile.nick_name = nick_name
-        if(gender && Object.values(Gender).includes(gender as any)) profile.gender = gender
-        if(birth_date && isDate(birth_date)) profile.birth_date = new Date(birth_date)
-        if(linkedin) profile.linkedin = linkedin
-        if(twitter) profile.twitter = twitter
+      if (bio) profile.bio = bio;
+      if (nick_name) profile.nick_name = nick_name;
+      if (gender && Object.values(Gender).includes(gender as any))
+        profile.gender = gender;
+      if (birth_date && isDate(birth_date))
+        profile.birth_date = new Date(birth_date);
+      if (linkedin) profile.linkedin = linkedin;
+      if (twitter) profile.twitter = twitter;
+      if(image_bg) profile.image_bg = image_bg;
+      if(image_profile) profile.image_profile = image_profile
     }
     if (!profile) {
-        profile = this.profileRepository.create({
-            nick_name,
-            bio,
-            gender,
-            birth_date,
-            linkedin,
-            twitter,
-            userId: id,
-          });
+      profile = this.profileRepository.create({
+        nick_name,
+        bio,
+        gender,
+        birth_date,
+        linkedin,
+        twitter,
+        image_bg,
+        image_profile,
+        userId: id,
+      });
     }
     profile = await this.profileRepository.save(profile);
     if (!profileId) {
