@@ -33,11 +33,11 @@ export class UserService {
     let { image_profile, image_bg } = files;
     if (image_profile && image_profile?.length > 0) {
       let [image] = image_profile;
-      profileDto.image_profile = image.path;
+      profileDto.image_profile = image.path.slice(7);
     }
     if (image_bg && image_bg?.length > 0) {
       let [image] = image_bg;
-      profileDto.image_bg = image.path;
+      profileDto.image_bg = image.path.slice(7);
     }
     const user = this.req.user;
     if (!user) {
@@ -56,8 +56,8 @@ export class UserService {
         profile.birth_date = new Date(birth_date);
       if (linkedin) profile.linkedin = linkedin;
       if (twitter) profile.twitter = twitter;
-      if(image_bg) profile.image_bg = profileDto.image_bg;
-      if(image_profile) profile.image_profile = profileDto.image_profile
+      if (image_bg) profile.image_bg = profileDto.image_bg;
+      if (image_profile) profile.image_profile = profileDto.image_profile;
     }
     if (!profile) {
       profile = this.profileRepository.create({
@@ -77,5 +77,25 @@ export class UserService {
       await this.userRepository.update({ id }, { profileId: profile.id });
     }
     return { message: PublicMessage.Updated };
+  }
+  async getProfile() {
+    const user = this.req?.user;
+    if (!user) {
+      throw new UnauthorizedException(AuthMessage.LoginIsRequired);
+    }
+    const profile = await this.profileRepository.findOne({
+      where: { userId: user.id },
+      relations: ['user'],
+      select: {
+        user:{
+          id: true,
+          email: true,
+          username: true,
+          created_at: true,
+          updated_at: true,
+        }
+      }
+    });
+    return profile;
   }
 }
