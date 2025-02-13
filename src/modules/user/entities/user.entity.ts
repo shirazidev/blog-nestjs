@@ -9,6 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { OtpEntity } from './otp.entity';
+import { ProfileEntity } from './profile.entity';
 
 @Entity(EntityNames.User)
 export class UserEntity extends BaseEntity {
@@ -27,6 +28,13 @@ export class UserEntity extends BaseEntity {
   })
   @JoinColumn()
   otp: OtpEntity;
+  @Column({ nullable: true })
+  profileId: number;
+  @OneToOne(() => ProfileEntity, (profile) => profile.user, {
+    nullable: true,
+  })
+  @JoinColumn()
+  profile: ProfileEntity;
   @CreateDateColumn()
   created_at: Date;
   @UpdateDateColumn()
