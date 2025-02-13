@@ -3,14 +3,22 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CategoryEntity } from './entities/category.entity';
 import { Repository } from 'typeorm';
-import { ConflictMessage, PublicMessage } from 'src/common/enums/message.enum';
-import { paginationGenerator, paginationSolver } from 'src/common/utils/pagination.util';
+import {
+  ConflictMessage,
+  NotFoundMessage,
+  PublicMessage,
+} from 'src/common/enums/message.enum';
+import {
+  paginationGenerator,
+  paginationSolver,
+} from 'src/common/utils/pagination.util';
 
 @Injectable()
 export class CategoryService {
@@ -35,7 +43,7 @@ export class CategoryService {
     return title;
   }
   async findAll(paginationDto: PaginationDto) {
-    const {page, skip, limit} = paginationSolver(paginationDto)
+    const { page, skip, limit } = paginationSolver(paginationDto);
     const [categories, count] = await this.categoryRepository.findAndCount({
       skip,
       take: limit,
@@ -43,18 +51,32 @@ export class CategoryService {
     return {
       pagination: paginationGenerator(count, page, limit),
       data: categories,
-    }
+    };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} category`;
+  async findOne(id: number) {
+    const category = await this.categoryRepository.findOneBy({ id });
+    if (!category)
+      throw new NotFoundException(NotFoundMessage.NotFoundCategory);
+    return category;
   }
 
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return `This action updates a #${id} category`;
+  async update(id: number, updateCategoryDto: UpdateCategoryDto) {
+    const category = await this.findOne(id);
+    const { title, priority } = updateCategoryDto;
+    if (title) category.title = title;
+    if (priority) category.priority = priority;
+    await this.categoryRepository.save(category);
+    return {
+      message: PublicMessage.Updated,
+    };
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} category`;
+  async remove(id: number) {
+    await this.findOne(id);
+    await this.categoryRepository.delete({ id });
+    return {
+      message: PublicMessage.Deleted,
+    };
   }
 }
