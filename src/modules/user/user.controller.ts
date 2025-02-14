@@ -1,4 +1,4 @@
-import { ProfileDto } from './dto/user.dto';
+import { ChangeEmailDto, ProfileDto } from './dto/user.dto';
 import {
   Controller,
   Get,
@@ -56,7 +56,14 @@ export class UserController {
   @Get('/profile')
   @UseGuards(AuthGuard)
   @ApiBearerAuth('Authorization')
-  async profile () {
+  async profile() {
     return this.userService.getProfile();
+  }
+  @Patch('/change-email')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('Authorization')
+  @ApiConsumes(SwaggerConsumesEnum.JSON, SwaggerConsumesEnum.FORM)
+  async changeEmail(@Body() changeEmailDto: ChangeEmailDto) {
+    return await this.userService.changeEmail(changeEmailDto);
   }
 }
