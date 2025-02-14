@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, isEnum, IsOptional, Length } from 'class-validator';
+import { IsEmail, IsEnum, isEnum, IsOptional, Length } from 'class-validator';
 import { Gender } from '../enums/gender.enum';
 
 export class ProfileDto {
@@ -30,4 +30,9 @@ export class ProfileDto {
   @ApiPropertyOptional()
   @IsOptional()
   twitter: string;
+}
+export class ChangeEmailDto {
+  @ApiProperty()
+  @IsEmail()
+  email: string;
 }
