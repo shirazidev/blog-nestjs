@@ -15,7 +15,7 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { SwaggerConsumesEnum } from 'src/common/enums/swagger-consumes.enum';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
@@ -27,6 +27,9 @@ import {
 } from 'src/common/utils/multer.util';
 import { ProfileImages } from './types/files';
 import { UploadedOptionalFiles } from 'src/common/decorators/upload-file.decorator';
+import { cookieKeys } from 'src/common/enums/cookie.enum';
+import { CookiesOptionsToken } from 'src/common/utils/cookie.util';
+import { PublicMessage } from 'src/common/enums/message.enum';
 
 @Controller('user')
 @ApiTags('User')
@@ -63,7 +66,13 @@ export class UserController {
   @UseGuards(AuthGuard)
   @ApiBearerAuth('Authorization')
   @ApiConsumes(SwaggerConsumesEnum.JSON, SwaggerConsumesEnum.FORM)
-  async changeEmail(@Body() changeEmailDto: ChangeEmailDto) {
-    return await this.userService.changeEmail(changeEmailDto);
+  async changeEmail(@Body() changeEmailDto: ChangeEmailDto, res:Response) {
+    const {code, token, message} = await this.userService.changeEmail(changeEmailDto);
+    if(message) return message
+    res.cookie(cookieKeys.EmailOTP, token, CookiesOptionsToken())
+    return {
+      message: PublicMessage.SentOtp,
+      code
+    }
   }
 }
