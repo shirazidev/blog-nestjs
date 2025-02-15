@@ -2,13 +2,15 @@ import { UserEntity } from 'src/modules/user/entities/user.entity';
 import { TokenService } from './../auth/tokens.service';
 import { AuthService } from './../auth/auth.service';
 import {
+  BadRequestException,
   Inject,
   Injectable,
   Scope,
   UnauthorizedException,
+  ConflictException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { ProfileDto } from './dto/user.dto';
+import { ChangeEmailDto, ProfileDto } from './dto/user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProfileEntity } from './entities/profile.entity';
 import { Repository } from 'typeorm';
@@ -28,6 +30,7 @@ export class UserService {
     private userRepository: Repository<UserEntity>,
     private tokenService: TokenService,
     @Inject(REQUEST) private req: Request,
+    private authService: AuthService,
   ) {}
   async changeProfile(files: ProfileImages, profileDto: ProfileDto) {
     let { image_profile, image_bg } = files;
@@ -85,8 +88,37 @@ export class UserService {
     const profile = await this.userRepository.findOne({
       where: { id: user.id },
       relations: ['profile'],
-      select: ['id', 'username', 'email', 'phone', 'created_at', 'updated_at','profile']
+      select: [
+        'id',
+        'username',
+        'email',
+        'phone',
+        'created_at',
+        'updated_at',
+        'profile',
+      ],
     });
     return profile;
+  }
+  async changeEmail(changeEmailDto: ChangeEmailDto) {
+    const reqUser = this.req.user;
+    if (!reqUser) throw new UnauthorizedException(AuthMessage.LoginIsRequired);
+    const user = await this.userRepository.findOneBy({
+      email: changeEmailDto.email,
+    });
+    if (user && user?.id !== reqUser.id) {
+      throw new ConflictException(AuthMessage.EmailExist);
+    } else if (user && user.id == reqUser.id) {
+      return {
+        message: PublicMessage.Updated,
+      };
+    }
+    reqUser.newEmail = changeEmailDto.email;
+    const otp = await this.authService.SaveOtp(reqUser.id)
+    const token = await this.tokenService.createEmailToken({email: changeEmailDto.email})
+    return {
+      code: otp.code,
+      token,
+    }
   }
 }
