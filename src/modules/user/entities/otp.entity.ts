@@ -7,6 +7,8 @@ import { BaseEntity } from 'src/common/abstracts/base.entity';
 export class OtpEntity extends BaseEntity {
   @Column()
   code: string;
+  @Column({ nullable: true })
+  method: string;
   @Column()
   expires_in: Date;
   @Column()
