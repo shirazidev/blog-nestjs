@@ -25,6 +25,7 @@ import { Response, Request } from 'express';
 import { cookieKeys } from 'src/common/enums/cookie.enum';
 import { AuthResponse } from './types/response';
 import { REQUEST } from '@nestjs/core';
+import { CookiesOptionsToken } from 'src/common/utils/cookie.util';
 
 @Injectable({ scope: Scope.REQUEST })
 export class AuthService {
@@ -74,6 +75,8 @@ export class AuthService {
     user = await this.userRepository.save(user);
     await this.userRepository.update(user.id, { username: `m_${user.id},` });
     const otp = await this.SaveOtp(user.id);
+    otp.method = method;
+    await this.otpRepository.save(otp);
     const token = this.tokenService.createOtpToken({ userId: user.id });
     res.cookie(cookieKeys.OTP, token, { httpOnly: true });
     return {
@@ -83,10 +86,7 @@ export class AuthService {
   }
   async sendResponse(result: AuthResponse, res: Response) {
     const { otpcode, token } = result;
-    res.cookie(cookieKeys.OTP, token, {
-      httpOnly: true,
-      expires: new Date(Date.now() + 60000 * 2),
-    });
+    res.cookie(cookieKeys.OTP, token, CookiesOptionsToken());
     res.json({
       message: AuthMessage.SentOtp,
       otpcode,
@@ -131,6 +131,21 @@ export class AuthService {
     };
     const { accessToken, refreshToken } =
       this.tokenService.createJwtToken(payload);
+    if (otp.method === AuthMethod.Email) {
+      await this.userRepository.update(
+        { id: userId },
+        {
+          verifyEmail: true,
+        },
+      );
+    } else if (otp.method === AuthMethod.Phone) {
+      await this.userRepository.update(
+        { id: userId },
+        {
+          verifyPhone: true,
+        },
+      );
+    }
 
     return { accessToken, refreshToken, message: PublicMessage.LoggedIn };
   }
