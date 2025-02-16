@@ -57,7 +57,7 @@ export class AuthService {
     const validUsername = this.usernameValidator(username, method);
     let user: UserEntity = await this.checkExistUser(method, validUsername);
     if (!user) throw new UnauthorizedException(AuthMessage.UserNotFound);
-    const otp = await this.SaveOtp(user.id);
+    const otp = await this.SaveOtp(user.id, method);
     const token = this.tokenService.createOtpToken({ userId: user.id });
     res.cookie(cookieKeys.OTP, token, { httpOnly: true });
     return {
@@ -74,7 +74,7 @@ export class AuthService {
     user = this.userRepository.create({ [method]: username });
     user = await this.userRepository.save(user);
     await this.userRepository.update(user.id, { username: `m_${user.id},` });
-    const otp = await this.SaveOtp(user.id);
+    const otp = await this.SaveOtp(user.id, method);
     otp.method = method;
     await this.otpRepository.save(otp);
     const token = this.tokenService.createOtpToken({ userId: user.id });
@@ -92,7 +92,7 @@ export class AuthService {
       otpcode,
     });
   }
-  async SaveOtp(userId: number) {
+  async SaveOtp(userId: number, method: AuthMethod) {
     const code = randomInt(10000, 99999).toString();
     const expires_in = new Date(Date.now() + 60000 * 2);
     let otp = await this.otpRepository.findOneBy({ userId: userId });
@@ -103,8 +103,9 @@ export class AuthService {
       existOtp = true;
       otp.code = code;
       otp.expires_in = expires_in;
+      otp.method = method
     } else {
-      otp = this.otpRepository.create({ code, expires_in, userId });
+      otp = this.otpRepository.create({ code, expires_in, userId, method });
     }
     otp = await this.otpRepository.save(otp);
     // #todo send sms as email or phone
@@ -186,6 +187,8 @@ export class AuthService {
         username: true,
         phone: true,
         email: true,
+        newEmail: true,
+        verifyEmail: true,
         profileId: true,
       },
     });
