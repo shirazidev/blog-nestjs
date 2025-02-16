@@ -15,7 +15,7 @@ namespace NodeJS {
         OTP_TOKEN_SECRET: string;
         ACCESSTOKENJWT: string;
         REFRESHTOKENJWT: string;
-        PHONE_TOKEN_SECRET: string;
+        PHONE_SECRET_TOKEN: string;
         EMAIL_SECRET_TOKEN: string;
     }
 }
