@@ -70,18 +70,18 @@ export class TokenService {
     }
   }
   createPhoneToken(payload: PhonePayload) {
-    const emailToken = this.jwtService.sign(payload, {
-      secret: process.env.PHONE_TOKEN_SECRET,
+    const phoneToken = this.jwtService.sign(payload, {
+      secret: process.env.PHONE_SECRET_TOKEN,
       expiresIn: 60 * 2,
     });
     return {
-      emailToken,
+      phoneToken,
     };
   }
   verifyPhoneToken(token: string): PhonePayload {
     try {
       return this.jwtService.verify(token, {
-        secret: process.env.PHONE_TOKEN_SECRET,
+        secret: process.env.PHONE_SECRET_TOKEN,
       });
     } catch (error) {
       throw new BadRequestException(BadRequestMessage.SomeThingWrong);
