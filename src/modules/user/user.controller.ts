@@ -1,4 +1,4 @@
-import { ChangeEmailDto, ProfileDto, VerifyEmailDto } from './dto/user.dto';
+import { ChangeEmailDto, ChangePhoneDto, ChangeUsernameDto, ProfileDto, VerifyDto } from './dto/user.dto';
 import {
   Controller,
   Get,
@@ -63,6 +63,13 @@ export class UserController {
   async profile() {
     return this.userService.getProfile();
   }
+  @Patch('/change-username')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('Authorization')
+  @ApiConsumes(SwaggerConsumesEnum.JSON, SwaggerConsumesEnum.FORM)
+  async changeUsername(@Body() changeUsernameDto: ChangeUsernameDto) {
+    return await this.userService.changeUserName(changeUsernameDto.username)
+  }
   @Patch('/change-email')
   @UseGuards(AuthGuard)
   @ApiBearerAuth('Authorization')
@@ -80,7 +87,27 @@ export class UserController {
   @UseGuards(AuthGuard)
   @ApiBearerAuth('Authorization')
   @ApiConsumes(SwaggerConsumesEnum.JSON, SwaggerConsumesEnum.FORM)
-  async verifyEmail(@Body() verifyEmailDto: VerifyEmailDto) {
+  async verifyEmail(@Body() verifyEmailDto: VerifyDto) {
     return this.userService.verifyEmail(verifyEmailDto.code)
+  }
+  @Patch('/change-phone')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('Authorization')
+  @ApiConsumes(SwaggerConsumesEnum.JSON, SwaggerConsumesEnum.FORM)
+  async changePhone(@Body() changePhoneDto: ChangePhoneDto, @Res() res:Response) {
+    const {code, phoneToken, message} = await this.userService.changePhone(changePhoneDto.phone);
+    if(message && !code && !phoneToken) return res.json({message});
+    res.cookie(cookieKeys.PhoneOTP, phoneToken, CookiesOptionsToken());
+    return res.json({
+      message: PublicMessage.SentOtp,
+      code,
+    });
+  }
+  @Patch('/verify-phone')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('Authorization')
+  @ApiConsumes(SwaggerConsumesEnum.JSON, SwaggerConsumesEnum.FORM)
+  async verifyPhone(@Body() verifyPhoneDto: VerifyDto) {
+    return this.userService.verifyPhone(verifyPhoneDto.code)
   }
 }
