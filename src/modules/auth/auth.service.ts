@@ -186,6 +186,7 @@ export class AuthService {
         id: true,
         username: true,
         phone: true,
+        newPhone: true,
         email: true,
         newEmail: true,
         verifyEmail: true,
