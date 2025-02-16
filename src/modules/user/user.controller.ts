@@ -1,4 +1,4 @@
-import { ChangeEmailDto, ProfileDto } from './dto/user.dto';
+import { ChangeEmailDto, ProfileDto, VerifyEmailDto } from './dto/user.dto';
 import {
   Controller,
   Get,
@@ -12,6 +12,7 @@ import {
   UseInterceptors,
   UploadedFiles,
   ParseFilePipe,
+  Res,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
@@ -66,13 +67,20 @@ export class UserController {
   @UseGuards(AuthGuard)
   @ApiBearerAuth('Authorization')
   @ApiConsumes(SwaggerConsumesEnum.JSON, SwaggerConsumesEnum.FORM)
-  async changeEmail(@Body() changeEmailDto: ChangeEmailDto, res:Response) {
-    const {code, token, message} = await this.userService.changeEmail(changeEmailDto);
-    if(message) return message
-    res.cookie(cookieKeys.EmailOTP, token, CookiesOptionsToken())
-    return {
+  async changeEmail(@Body() changeEmailDto: ChangeEmailDto, @Res() res:Response) {
+    const {code, emailToken, message} = await this.userService.changeEmail(changeEmailDto);
+    if(message && !code && !emailToken) return res.json({message});
+    res.cookie(cookieKeys.EmailOTP, emailToken, CookiesOptionsToken());
+    return res.json({
       message: PublicMessage.SentOtp,
-      code
-    }
+      code,
+    });
+  }
+  @Patch('/verify-email')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('Authorization')
+  @ApiConsumes(SwaggerConsumesEnum.JSON, SwaggerConsumesEnum.FORM)
+  async verifyEmail(@Body() verifyEmailDto: VerifyEmailDto) {
+    return this.userService.verifyEmail(verifyEmailDto.code)
   }
 }
