@@ -42,7 +42,11 @@ export class ChangePhoneDto {
   @IsMobilePhone("fa-IR", {}, {message: ValidationMessage.PhoneIsInvalid})
   phone: string;
 }
-export class VerifyEmailDto {
+export class VerifyDto {
   @ApiProperty()
   code: string;
+}
+export class ChangeUsernameDto {
+  @ApiProperty()
+  username: string;
 }
