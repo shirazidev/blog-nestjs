@@ -53,7 +53,7 @@ export class TokenService {
   }
   createEmailToken(payload: EmailPayload) {
     const emailToken = this.jwtService.sign(payload, {
-      secret: process.env.EMAIL_TOKEN_SECRET,
+      secret: process.env.EMAIL_SECRET_TOKEN,
       expiresIn: 60 * 2,
     });
     return {
@@ -63,7 +63,7 @@ export class TokenService {
   verifyEmailToken(token: string): EmailPayload {
     try {
       return this.jwtService.verify(token, {
-        secret: process.env.EMAIL_TOKEN_SECRET,
+        secret: process.env.EMAIL_SECRET_TOKEN,
       });
     } catch (error) {
       throw new BadRequestException(BadRequestMessage.SomeThingWrong);
