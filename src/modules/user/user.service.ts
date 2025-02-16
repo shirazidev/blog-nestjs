@@ -109,6 +109,22 @@ export class UserService {
     });
     return profile;
   }
+  async changeUserName(username: string){
+    const req = this.req.user;
+    if (!req) throw new UnauthorizedException(AuthMessage.LoginIsRequired);
+    const user = await this.userRepository.findOneBy({username});
+    if(user && user.id !== req.id){
+      throw new ConflictException(AuthMessage.UsernameExist);
+    }else if(user && user.id === req.id){
+      return {
+        message: PublicMessage.Updated
+      }
+    }
+    await this.userRepository.update({id: req.id}, {username})
+    return {
+      message: PublicMessage.Updated
+    }
+  }
   async changeEmail(changeEmailDto: ChangeEmailDto) {
     const reqUser = this.req.user;
     if (!reqUser) throw new UnauthorizedException(AuthMessage.LoginIsRequired);
@@ -154,6 +170,56 @@ export class UserService {
     await this.userRepository.update(
       { id },
       { email: newEmail, verifyEmail: true, newEmail: "" },
+    );
+    return {
+      message: PublicMessage.Updated,
+    };
+  }
+  async changePhone(phone: string) {
+    const reqUser = this.req.user;
+    if (!reqUser) throw new UnauthorizedException(AuthMessage.LoginIsRequired);
+    const user = await this.userRepository.findOneBy({
+      phone,
+    });
+    if (user && user?.id !== reqUser.id) {
+      throw new ConflictException(AuthMessage.PhoneExist);
+    } else if (user && user.id == reqUser.id) {
+      return {
+        message: PublicMessage.Updated,
+      };
+    }
+    await this.userRepository.update(
+      { id: reqUser.id },
+      { newPhone: phone },
+    );
+
+    const otp = await this.authService.SaveOtp(reqUser.id, AuthMethod.Phone);
+    const { phoneToken } = this.tokenService.createPhoneToken({
+      phone,
+    });
+    return {
+      code: otp.code,
+      phoneToken,
+    };
+  }
+  async verifyPhone(code: string) {
+    const req = this.req.user;
+    if (!req) throw new BadRequestException(AuthMessage.LoginIsRequired);
+    const { id, newPhone } = req;
+    let token = this.req.cookies[cookieKeys.PhoneOTP];
+    if (!token) throw new BadRequestException(AuthMessage.ExpiredCode);
+    const { phone } = this.tokenService.verifyPhoneToken(token);
+    if (phone !== newPhone) {
+      throw new BadRequestException(BadRequestMessage.SomeThingWrong);
+    }
+
+    const otp = await this.checkOtp(id, code);
+    if (otp.method !== AuthMethod.Phone) {
+      throw new BadRequestException(BadRequestMessage.SomeThingWrong);
+    }
+    await this.userRepository.update(
+      { id },
+      { phone: newPhone, verifyPhone: true, newPhone: "" },
     );
     return {
       message: PublicMessage.Updated,
