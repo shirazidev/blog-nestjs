@@ -42,4 +42,22 @@ export class BlogService {
     const blog = await this.blogRepository.findOneBy({ slug });
     return !!blog;
   }
+  async getUserBlogs() {
+    let user = this.request?.user;
+    if (!user) throw new BadRequestException(BadRequestMessage.SomeThingWrong);
+    return await this.blogRepository.find({
+      where: { authorId: user.id },
+      select: {
+        id: true,
+        title: true,
+        short_desc: true,
+        slug: true,
+        status: true,
+        updated_at: true,
+      },
+      order: {
+        id: 'DESC',
+      },
+    });
+  }
 }
