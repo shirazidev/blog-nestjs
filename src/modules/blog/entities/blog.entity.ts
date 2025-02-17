@@ -23,7 +23,7 @@ export class BlogEntity extends BaseEntity {
   content: string;
   @Column({ nullable: true })
   image: string;
-  @Column({unique: true})
+  @Column({ unique: true })
   slug: string;
   @Column()
   time_for_study: string;
