@@ -23,3 +23,6 @@ export class CreateBlogDto {
   @ApiPropertyOptional()
   image: string;
 }
+export class FilterBlogDto {
+  search: string;
+}
