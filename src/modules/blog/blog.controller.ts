@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { BlogService } from './blog.service';
 import { CreateBlogDto } from './dtos/blog.dto';
 import { AuthGuard } from '../auth/guards/auth.guard';
@@ -15,5 +15,12 @@ export class BlogController {
   @ApiConsumes(SwaggerConsumesEnum.JSON, SwaggerConsumesEnum.FORM)
   async createBlog(@Body() createBlogDto: CreateBlogDto) {
     return await this.blogService.createBlog(createBlogDto);
+  }
+  @Get('/user')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('Authorization')
+  @ApiConsumes(SwaggerConsumesEnum.JSON, SwaggerConsumesEnum.FORM)
+  async getUserBlogs() {
+    return await this.blogService.getUserBlogs();
   }
 }
