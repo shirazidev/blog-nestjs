@@ -10,6 +10,11 @@ import {
   PublicMessage,
 } from '../../common/enums/message.enum';
 import { REQUEST } from '@nestjs/core';
+import { PaginationDto } from '../../common/dtos/pagination.dto';
+import {
+  paginationGenerator,
+  paginationSolver,
+} from '../../common/utils/pagination.util';
 
 @Injectable({ scope: Scope.REQUEST })
 export class BlogService {
@@ -59,5 +64,18 @@ export class BlogService {
         id: 'DESC',
       },
     });
+  }
+  async blogsList(paginationDto: PaginationDto) {
+    const { limit, page, skip } = paginationSolver(paginationDto);
+
+    const [blogs, count] = await this.blogRepository.findAndCount({
+      where: {},
+      order: {
+        id: 'DESC',
+      },
+      skip,
+      take: limit,
+    });
+    return { pagination: paginationGenerator(count, limit, page), blogs };
   }
 }
