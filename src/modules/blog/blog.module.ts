@@ -7,10 +7,12 @@ import { BlogLikeEntity } from './entities/like.entity';
 import { BlogCommentsEntity } from './entities/comment.entity';
 import { BlogBookmarksEntity } from './entities/bookmark.entity';
 import { AuthModule } from '../auth/auth.module';
+import { CategoryModule } from '../category/category.module';
 
 @Module({
   imports: [
     AuthModule,
+    CategoryModule,
     TypeOrmModule.forFeature([
       BlogEntity,
       BlogLikeEntity,
