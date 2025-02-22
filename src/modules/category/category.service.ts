@@ -60,6 +60,16 @@ export class CategoryService {
       throw new NotFoundException(NotFoundMessage.NotFoundCategory);
     return category;
   }
+  async findOneByTitle(title: string) {
+    return await this.categoryRepository.findOneBy({ title });
+  }
+  async insertByTitle(title: string) {
+    const category = this.categoryRepository.create({
+      title: title,
+      priority: 0,
+    });
+    return await this.categoryRepository.save(category);
+  }
 
   async update(id: number, updateCategoryDto: UpdateCategoryDto) {
     const category = await this.findOne(id);
