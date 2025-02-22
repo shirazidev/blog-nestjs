@@ -8,6 +8,7 @@ import { BlogCommentsEntity } from './entities/comment.entity';
 import { BlogBookmarksEntity } from './entities/bookmark.entity';
 import { AuthModule } from '../auth/auth.module';
 import { CategoryModule } from '../category/category.module';
+import { BlogCategoryEntity } from './entities/blog-category.entity';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { CategoryModule } from '../category/category.module';
     CategoryModule,
     TypeOrmModule.forFeature([
       BlogEntity,
+      BlogCategoryEntity,
       BlogLikeEntity,
       BlogCommentsEntity,
       BlogBookmarksEntity,
