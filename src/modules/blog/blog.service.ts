@@ -15,22 +15,42 @@ import {
   paginationGenerator,
   paginationSolver,
 } from '../../common/utils/pagination.util';
+import { isArray } from 'class-validator';
+import { CategoryEntity } from '../category/entities/category.entity';
+import { CategoryService } from '../category/category.service';
+import { BlogCategoryEntity } from './entities/blog-category.entity';
 
 @Injectable({ scope: Scope.REQUEST })
 export class BlogService {
   constructor(
     @InjectRepository(BlogEntity)
     private blogRepository: Repository<BlogEntity>,
+    @InjectRepository(BlogCategoryEntity)
+    private blogCategoryRepository: Repository<BlogCategoryEntity>,
+    private categoryService: CategoryService,
     @Inject(REQUEST) private request: Request,
   ) {}
   async createBlog(createBlogDto: CreateBlogDto) {
-    let { title, slug, content, time_for_study, short_desc, image } =
-      createBlogDto;
+    let {
+      title,
+      slug,
+      content,
+      time_for_study,
+      short_desc,
+      image,
+      categories,
+    } = createBlogDto;
     let user = this.request?.user;
     if (!user) throw new BadRequestException(BadRequestMessage.SomeThingWrong);
     slug = createSlug(slug?.trim() || title);
     const isExist = await this.checkExistBySlug(slug);
     if (isExist) slug += `-${randomId()}`;
+    if (!isArray(categories) && typeof categories === 'string') {
+      categories = categories.split(',');
+    } else if (!isArray(categories)) {
+      throw new BadRequestException(BadRequestMessage.InvalidCategory);
+    }
+
     let blog = this.blogRepository.create({
       title,
       slug,
@@ -40,7 +60,18 @@ export class BlogService {
       image,
       authorId: user.id,
     });
-    await this.blogRepository.save(blog);
+    blog = await this.blogRepository.save(blog);
+    for (const categoryTitle of categories) {
+      let category = await this.categoryService.findOneByTitle(categoryTitle);
+      if (!category) {
+        let newCategory =
+          await this.categoryService.insertByTitle(categoryTitle);
+        let category = await this.blogCategoryRepository.insert({
+          blogId: blog.id,
+          categoryId: newCategory.id,
+        });
+      }
+    }
     return { message: PublicMessage.Created };
   }
   async checkExistBySlug(slug: string) {
