@@ -2,6 +2,7 @@ export enum BadRequestMessage {
   InvalidLoginData = 'اطلاعات ارسال شده برای احراز هویت نامعتبر است',
   InvalidRegisterData = 'اطلاعات ارسال شده برای ثبت نام نامعتبر است',
   SomeThingWrong = 'خطایی رخ داده است',
+  InvalidCategory = 'دسته بندی ها را به درستی وارد کنید.',
 }
 export enum AuthMessage {
   InvalidAuthType = 'حساب کاربری با این مشخصات قبلا ثبت شده است',
@@ -14,10 +15,10 @@ export enum AuthMessage {
   LoginAgain = 'لطفا دوباره وارد شوید',
   LoginIsRequired = 'لطفا وارد حساب کاربری خود شوید',
   EmailExist = 'این ایمیل از قبل وجود دارد.',
-  PhoneExist= 'این شماره موبایل از قبل وجود دارد.',
+  PhoneExist = 'این شماره موبایل از قبل وجود دارد.',
   InvalidEmail = 'ایمیل نامعتبر است',
   InvalidPhone = 'شماره موبایل نامعتبر است',
-  UsernameExist= 'این نام کاربری از قبل وجود دارد.',
+  UsernameExist = 'این نام کاربری از قبل وجود دارد.',
 }
 export enum NotFoundMessage {
   NotFoundCategory = 'دسته بندی یافت نشد.',
