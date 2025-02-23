@@ -18,7 +18,6 @@ import {
 import { isArray } from 'class-validator';
 import { CategoryService } from '../category/category.service';
 import { BlogCategoryEntity } from './entities/blog-category.entity';
-import { FindOptionsWhere } from 'typeorm';
 import { EntityNames } from '../../common/enums/entity.enum';
 
 @Injectable({ scope: Scope.REQUEST })
