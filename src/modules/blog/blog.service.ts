@@ -66,7 +66,7 @@ export class BlogService {
       if (!category) {
         let newCategory =
           await this.categoryService.insertByTitle(categoryTitle);
-        let category = await this.blogCategoryRepository.insert({
+        await this.blogCategoryRepository.insert({
           blogId: blog.id,
           categoryId: newCategory.id,
         });
