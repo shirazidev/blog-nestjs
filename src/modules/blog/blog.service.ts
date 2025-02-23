@@ -1,4 +1,10 @@
-import { BadRequestException, Inject, Injectable, Scope } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+  Scope,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BlogEntity } from './entities/blog.entity';
 import { Repository } from 'typeorm';
@@ -7,7 +13,9 @@ import { createSlug, randomId } from 'src/common/utils/functions.util';
 import { Request } from 'express';
 import {
   BadRequestMessage,
+  NotFoundMessage,
   PublicMessage,
+  ValidationMessage,
 } from '../../common/enums/message.enum';
 import { REQUEST } from '@nestjs/core';
 import { PaginationDto } from '../../common/dtos/pagination.dto';
@@ -132,5 +140,24 @@ export class BlogService {
       .getManyAndCount();
 
     return { pagination: paginationGenerator(count, limit, page), blogs };
+  }
+  async checkExistBlogById(id: number) {
+    const blog = await this.blogRepository.findOneBy({ id });
+    if (!blog) throw new NotFoundException(NotFoundMessage.NotFoundBlog);
+    return blog;
+  }
+  async delete(id: number) {
+    const blog = await this.checkExistBlogById(id);
+    const userId = this.request?.user?.id;
+    if (!userId) {
+      throw new BadRequestException(BadRequestMessage.SomeThingWrong);
+    }
+    if (blog.authorId !== userId) {
+      throw new BadRequestException(ValidationMessage.BlogIsNotYours);
+    }
+    await this.blogRepository.delete({ id });
+    return {
+      message: PublicMessage.Deleted,
+    };
   }
 }
