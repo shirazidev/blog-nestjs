@@ -2,7 +2,7 @@ import { BadRequestException, Inject, Injectable, Scope } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BlogEntity } from './entities/blog.entity';
 import { Repository } from 'typeorm';
-import { CreateBlogDto } from './dtos/blog.dto';
+import { CreateBlogDto, FilterBlogDto } from './dtos/blog.dto';
 import { createSlug, randomId } from 'src/common/utils/functions.util';
 import { Request } from 'express';
 import {
@@ -19,6 +19,7 @@ import { isArray } from 'class-validator';
 import { CategoryEntity } from '../category/entities/category.entity';
 import { CategoryService } from '../category/category.service';
 import { BlogCategoryEntity } from './entities/blog-category.entity';
+import { FindOptionsWhere } from 'typeorm';
 
 @Injectable({ scope: Scope.REQUEST })
 export class BlogService {
@@ -96,11 +97,33 @@ export class BlogService {
       },
     });
   }
-  async blogsList(paginationDto: PaginationDto) {
+  async blogsList(paginationDto: PaginationDto, filterDto: FilterBlogDto) {
     const { limit, page, skip } = paginationSolver(paginationDto);
+    const { category } = filterDto;
+    let where: FindOptionsWhere<BlogEntity> = {};
+    if (category) {
+      where['categories'] = {
+        category: {
+          title: category,
+        },
+      };
+    }
 
     const [blogs, count] = await this.blogRepository.findAndCount({
-      where: {},
+      relations: {
+        categories: {
+          category: true,
+        },
+      },
+      where,
+      select: {
+        categories: {
+          id: true,
+          category: {
+            title: true,
+          },
+        },
+      },
       order: {
         id: 'DESC',
       },
