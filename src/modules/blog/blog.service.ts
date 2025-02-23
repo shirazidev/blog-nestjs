@@ -103,16 +103,21 @@ export class BlogService {
     const { limit, page, skip } = paginationSolver(paginationDto);
     let { category, search } = filterDto;
     let where = '';
+    const parameters: any = {};
+
     if (category) {
       category = category.toLowerCase();
       if (where.length > 0) where += ' AND ';
-      where += where += 'category.title = LOWER(:category)';
+      where += 'category.title = LOWER(:category)';
+      parameters.category = category;
     }
+
     if (search) {
       if (where.length > 0) where += ' AND ';
       search = `%${search.toLowerCase()}%`;
       where +=
         'CONCAT(blog.title, blog.short_desc, blog.content) ILIKE :search';
+      parameters.search = search;
     }
 
     const [blogs, count] = await this.blogRepository
@@ -120,7 +125,7 @@ export class BlogService {
       .leftJoin('blog.categories', 'categories')
       .leftJoin('categories.category', 'category')
       .addSelect(['categories.id', 'category.title'])
-      .where(where, { category })
+      .where(where, parameters)
       .orderBy('blog.id', 'DESC')
       .skip(skip)
       .take(limit)
