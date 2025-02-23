@@ -9,5 +9,11 @@ export function FilterBlog() {
       required: false,
       type: 'string',
     }),
+    ApiQuery({
+      name: 'search',
+      example: 'string',
+      required: false,
+      type: 'string',
+    }),
   );
 }
