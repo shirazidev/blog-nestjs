@@ -1,4 +1,14 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { BlogService } from './blog.service';
 import { CreateBlogDto, FilterBlogDto } from './dtos/blog.dto';
 import { AuthGuard } from '../auth/guards/auth.guard';
@@ -33,5 +43,10 @@ export class BlogController {
     @Query() filterDto: FilterBlogDto,
   ) {
     return await this.blogService.blogsList(paginationDto, filterDto);
+  }
+  @Delete('/:id')
+  @ApiConsumes(SwaggerConsumesEnum.JSON, SwaggerConsumesEnum.FORM)
+  async delete(@Param('id', ParseIntPipe) id: number) {
+    return await this.blogService.delete(id);
   }
 }
