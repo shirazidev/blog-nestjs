@@ -16,7 +16,6 @@ import {
   paginationSolver,
 } from '../../common/utils/pagination.util';
 import { isArray } from 'class-validator';
-import { CategoryEntity } from '../category/entities/category.entity';
 import { CategoryService } from '../category/category.service';
 import { BlogCategoryEntity } from './entities/blog-category.entity';
 import { FindOptionsWhere } from 'typeorm';
@@ -46,7 +45,7 @@ export class BlogService {
     slug = createSlug(slug?.trim() || title);
     const isExist = await this.checkExistBySlug(slug);
     if (isExist) slug += `-${randomId()}`;
-    if (!isArray(categories) && typeof categories === 'string') {
+    if (!isArray(categories)) {
       categories = categories.split(',');
     } else if (!isArray(categories)) {
       throw new BadRequestException(BadRequestMessage.InvalidCategory);

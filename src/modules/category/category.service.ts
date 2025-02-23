@@ -1,6 +1,5 @@
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import {
-  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
