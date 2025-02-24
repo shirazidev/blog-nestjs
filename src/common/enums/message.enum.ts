@@ -36,6 +36,8 @@ export enum PublicMessage {
   Deleted = 'با موفقیت حذف شد.',
   Updated = 'با موفقیت به روز رسانی شد',
   SentOtp = 'کد اعتبارسنجی به شما ارسال شد',
+  Liked = 'با موفقیت لایک شد',
+  DisLiked = 'لایک شما با موفقیت برداشته شد',
 }
 
 export enum ConflictMessage {
