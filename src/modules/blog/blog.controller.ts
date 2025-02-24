@@ -53,6 +53,10 @@ export class BlogController {
   ) {
     return await this.blogService.update(id, updateBlogDto);
   }
+  @Get('/like/:id')
+  async like(@Param('id', ParseIntPipe) id: number) {
+    return await this.blogService.like(id);
+  }
   @Delete('/:id')
   @ApiConsumes(SwaggerConsumesEnum.JSON, SwaggerConsumesEnum.FORM)
   async delete(@Param('id', ParseIntPipe) id: number) {
