@@ -6,11 +6,12 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
 import { BlogService } from './blog.service';
-import { CreateBlogDto, FilterBlogDto } from './dtos/blog.dto';
+import { CreateBlogDto, FilterBlogDto, UpdateBlogDto } from './dtos/blog.dto';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { SwaggerConsumesEnum } from 'src/common/enums/swagger-consumes.enum';
@@ -43,6 +44,14 @@ export class BlogController {
     @Query() filterDto: FilterBlogDto,
   ) {
     return await this.blogService.blogsList(paginationDto, filterDto);
+  }
+  @Put('/:id')
+  @ApiConsumes(SwaggerConsumesEnum.JSON, SwaggerConsumesEnum.FORM)
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateBlogDto: UpdateBlogDto,
+  ) {
+    return await this.blogService.update(id, updateBlogDto);
   }
   @Delete('/:id')
   @ApiConsumes(SwaggerConsumesEnum.JSON, SwaggerConsumesEnum.FORM)
