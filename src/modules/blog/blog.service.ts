@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
   Scope,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BlogEntity } from './entities/blog.entity';
@@ -12,6 +13,7 @@ import { CreateBlogDto, FilterBlogDto, UpdateBlogDto } from './dtos/blog.dto';
 import { createSlug, randomId } from 'src/common/utils/functions.util';
 import { Request } from 'express';
 import {
+  AuthMessage,
   BadRequestMessage,
   NotFoundMessage,
   PublicMessage,
@@ -27,6 +29,7 @@ import { isArray } from 'class-validator';
 import { CategoryService } from '../category/category.service';
 import { BlogCategoryEntity } from './entities/blog-category.entity';
 import { EntityNames } from '../../common/enums/entity.enum';
+import { BlogLikeEntity } from './entities/like.entity';
 
 @Injectable({ scope: Scope.REQUEST })
 export class BlogService {
@@ -35,6 +38,8 @@ export class BlogService {
     private blogRepository: Repository<BlogEntity>,
     @InjectRepository(BlogCategoryEntity)
     private blogCategoryRepository: Repository<BlogCategoryEntity>,
+    @InjectRepository(BlogLikeEntity)
+    private blogLikeRepository: Repository<BlogLikeEntity>,
     private categoryService: CategoryService,
     @Inject(REQUEST) private request: Request,
   ) {}
@@ -204,6 +209,24 @@ export class BlogService {
       message: PublicMessage.Updated,
     };
   }
+  async like(id: number) {
+    const user = await this.getUser();
+    const blog = await this.checkExistBlogById(id);
+    const isLiked = await this.blogLikeRepository.findOneBy({
+      blogId: id,
+      userId: user.id,
+    });
+    let message = PublicMessage.Liked;
+    if (!isLiked) {
+      await this.blogLikeRepository.insert({ blogId: id, userId: user.id });
+    } else if (isLiked) {
+      await this.blogLikeRepository.delete({ id: isLiked.id });
+      message = PublicMessage.DisLiked;
+    }
+    return {
+      message,
+    };
+  }
   async delete(id: number) {
     const blog = await this.checkExistBlogById(id);
     const userId = this.request?.user?.id;
@@ -217,5 +240,10 @@ export class BlogService {
     return {
       message: PublicMessage.Deleted,
     };
+  }
+  async getUser() {
+    const user = this.request?.user;
+    if (!user) throw new UnauthorizedException(AuthMessage.LoginIsRequired);
+    return user;
   }
 }
