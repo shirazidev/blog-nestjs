@@ -38,6 +38,8 @@ export enum PublicMessage {
   SentOtp = 'کد اعتبارسنجی به شما ارسال شد',
   Liked = 'با موفقیت لایک شد',
   DisLiked = 'لایک شما با موفقیت برداشته شد',
+  Bookmarked = 'با موفقیت نشانه گذاری شد',
+  unBookmarked = 'نشانه گذاری شما با موفقیت برداشته شد',
 }
 
 export enum ConflictMessage {
