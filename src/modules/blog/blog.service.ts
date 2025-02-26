@@ -224,7 +224,7 @@ export class BlogService {
   }
   async likeToggle(id: number) {
     const user = await this.getUser();
-    const blog = await this.checkExistBlogById(id);
+    await this.checkExistBlogById(id);
     const isLiked = await this.blogLikeRepository.findOneBy({
       blogId: id,
       userId: user.id,
@@ -242,7 +242,7 @@ export class BlogService {
   }
   async bookmarkToggle(id: number) {
     const user = await this.getUser();
-    const blog = await this.checkExistBlogById(id);
+    await this.checkExistBlogById(id);
     const isBookmarked = await this.blogBookmarkRepository.findOneBy({
       blogId: id,
       userId: user.id,
