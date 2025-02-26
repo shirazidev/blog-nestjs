@@ -218,7 +218,7 @@ export class BlogService {
       message: PublicMessage.Updated,
     };
   }
-  async like(id: number) {
+  async likeToggle(id: number) {
     const user = await this.getUser();
     const blog = await this.checkExistBlogById(id);
     const isLiked = await this.blogLikeRepository.findOneBy({

@@ -56,6 +56,8 @@ export class BlogController {
   @Get('/like/:id')
   async like(@Param('id', ParseIntPipe) id: number) {
     return await this.blogService.like(id);
+    return await this.blogService.likeToggle(id);
+  }
   }
   @Delete('/:id')
   @ApiConsumes(SwaggerConsumesEnum.JSON, SwaggerConsumesEnum.FORM)
