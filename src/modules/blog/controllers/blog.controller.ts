@@ -10,14 +10,14 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { BlogService } from './blog.service';
-import { CreateBlogDto, FilterBlogDto, UpdateBlogDto } from './dtos/blog.dto';
-import { AuthGuard } from '../auth/guards/auth.guard';
+import { BlogService } from '../services/blog.service';
+import { CreateBlogDto, FilterBlogDto, UpdateBlogDto } from '../dtos/blog.dto';
+import { AuthGuard } from '../../auth/guards/auth.guard';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { SwaggerConsumesEnum } from 'src/common/enums/swagger-consumes.enum';
-import { PaginationDto } from '../../common/dtos/pagination.dto';
-import { SkipAuth } from '../../common/decorators/skip-auth.decorator';
-import { FilterBlog } from '../../common/decorators/filter.decorator';
+import { PaginationDto } from '../../../common/dtos/pagination.dto';
+import { SkipAuth } from '../../../common/decorators/skip-auth.decorator';
+import { FilterBlog } from '../../../common/decorators/filter.decorator';
 
 @Controller('blog')
 @UseGuards(AuthGuard)

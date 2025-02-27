@@ -7,9 +7,9 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { BlogEntity } from './entities/blog.entity';
+import { BlogEntity } from '../entities/blog.entity';
 import { Repository } from 'typeorm';
-import { CreateBlogDto, FilterBlogDto, UpdateBlogDto } from './dtos/blog.dto';
+import { CreateBlogDto, FilterBlogDto, UpdateBlogDto } from '../dtos/blog.dto';
 import { createSlug, randomId } from 'src/common/utils/functions.util';
 import { Request } from 'express';
 import {
@@ -18,19 +18,20 @@ import {
   NotFoundMessage,
   PublicMessage,
   ValidationMessage,
-} from '../../common/enums/message.enum';
+} from '../../../common/enums/message.enum';
 import { REQUEST } from '@nestjs/core';
-import { PaginationDto } from '../../common/dtos/pagination.dto';
+import { PaginationDto } from '../../../common/dtos/pagination.dto';
 import {
   paginationGenerator,
   paginationSolver,
-} from '../../common/utils/pagination.util';
+} from '../../../common/utils/pagination.util';
 import { isArray } from 'class-validator';
-import { CategoryService } from '../category/category.service';
-import { BlogCategoryEntity } from './entities/blog-category.entity';
-import { EntityNames } from '../../common/enums/entity.enum';
-import { BlogLikeEntity } from './entities/like.entity';
-import { BlogBookmarksEntity } from './entities/bookmark.entity';
+import { CategoryService } from '../../category/category.service';
+import { BlogCategoryEntity } from '../entities/blog-category.entity';
+import { EntityNames } from '../../../common/enums/entity.enum';
+import { BlogLikeEntity } from '../entities/like.entity';
+import { BlogBookmarksEntity } from '../entities/bookmark.entity';
+import { BlogCommentsEntity } from '../entities/comment.entity';
 
 @Injectable({ scope: Scope.REQUEST })
 export class BlogService {
@@ -44,6 +45,8 @@ export class BlogService {
     private categoryService: CategoryService,
     @InjectRepository(BlogBookmarksEntity)
     private blogBookmarkRepository: Repository<BlogBookmarksEntity>,
+    @InjectRepository(BlogCommentsEntity)
+    private blogCommentRepository: Repository<BlogCommentsEntity>,
     @Inject(REQUEST) private request: Request,
   ) {}
   async createBlog(createBlogDto: CreateBlogDto) {
@@ -153,6 +156,7 @@ export class BlogService {
       .where(where, parameters)
       .loadRelationCountAndMap('blog.likes', 'blog.likes')
       .loadRelationCountAndMap('blog.bookmarks', 'blog.bookmarks')
+      .loadRelationCountAndMap('blog.comments', 'blog.comments')
       .orderBy('blog.id', 'DESC')
       .skip(skip)
       .take(limit)
