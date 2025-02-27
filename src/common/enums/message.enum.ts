@@ -3,6 +3,8 @@ export enum BadRequestMessage {
   InvalidRegisterData = 'اطلاعات ارسال شده برای ثبت نام نامعتبر است',
   SomeThingWrong = 'خطایی رخ داده است',
   InvalidCategory = 'دسته بندی ها را به درستی وارد کنید.',
+  InvalidComment = 'متن نظر را به درستی وارد کنید.',
+  CannotComment = 'شما نمیتوانید در این مقاله نظر بگذارید',
 }
 export enum AuthMessage {
   InvalidAuthType = 'حساب کاربری با این مشخصات قبلا ثبت شده است',
