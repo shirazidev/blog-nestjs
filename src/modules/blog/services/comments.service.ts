@@ -12,6 +12,13 @@ import {
 } from '../../../common/enums/message.enum';
 import { CommentDto } from '../dtos/comment.dto';
 import { Request } from 'express';
+import { PaginationDto } from '../../../common/dtos/pagination.dto';
+import {
+  paginationGenerator,
+  paginationSolver,
+} from '../../../common/utils/pagination.util';
+import { count } from 'rxjs';
+import { CommentQueryDto } from '../dtos/blog.dto';
 
 @Injectable({ scope: Scope.REQUEST })
 export class CommentsService {
@@ -44,6 +51,38 @@ export class CommentsService {
     });
     return {
       message: PublicMessage.Created,
+    };
+  }
+  async findPostComments(
+    idDto: CommentQueryDto,
+    paginationDto: PaginationDto,
+  ): Promise<{ pagination: any; comments: BlogCommentsEntity[] }> {
+    if (!idDto.id || isNaN(idDto.id)) {
+      throw new BadRequestException(BadRequestMessage.InvalidComment);
+    }
+    const blog = await this.blogService.checkExistBlogById(idDto.id);
+    const { limit, page, skip } = paginationSolver(paginationDto);
+    const [comments, count] = await this.blogCommentRepository.findAndCount({
+      where: { blogId: blog.id },
+      relations: { user: { profile: true }, blog: true },
+      select: {
+        user: {
+          username: true,
+          profile: {
+            nick_name: true,
+          },
+        },
+        blog: {
+          title: true,
+        },
+      },
+      skip,
+      take: limit,
+      order: { id: 'desc' },
+    });
+    return {
+      pagination: paginationGenerator(count, limit, page),
+      comments,
     };
   }
 }
