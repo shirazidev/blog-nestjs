@@ -156,7 +156,12 @@ export class BlogService {
       .where(where, parameters)
       .loadRelationCountAndMap('blog.likes', 'blog.likes')
       .loadRelationCountAndMap('blog.bookmarks', 'blog.bookmarks')
-      .loadRelationCountAndMap('blog.comments', 'blog.comments')
+      .loadRelationCountAndMap(
+        'blog.comments',
+        'blog.comments',
+        'comments',
+        (qb) => qb.where('comments.accepted = :accepted', { accepted: true }),
+      )
       .orderBy('blog.id', 'DESC')
       .skip(skip)
       .take(limit)
