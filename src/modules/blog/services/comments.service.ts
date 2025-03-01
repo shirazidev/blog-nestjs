@@ -17,7 +17,6 @@ import {
   paginationGenerator,
   paginationSolver,
 } from '../../../common/utils/pagination.util';
-import { count } from 'rxjs';
 import { CommentQueryDto } from '../dtos/blog.dto';
 
 @Injectable({ scope: Scope.REQUEST })
