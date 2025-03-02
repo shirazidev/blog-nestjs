@@ -45,4 +45,9 @@ export class CommentsController {
   async acceptBlog(@Param('id', ParseIntPipe) id: number) {
     return await this.commentService.acceptBlog(id);
   }
+  @Put('/reject/:id')
+  @ApiConsumes(SwaggerConsumesEnum.JSON, SwaggerConsumesEnum.FORM)
+  async rejectBlog(@Param('id', ParseIntPipe) id: number) {
+    return await this.commentService.rejectBlog(id);
+  }
 }
