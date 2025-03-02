@@ -84,6 +84,13 @@ export class CommentsService {
       comments,
     };
   }
+  async acceptBlog(id: number) {
+    let comment = await this.checkExistById(id);
+    await this.blogCommentRepository.update(comment.id, { accepted: true });
+    return {
+      message: PublicMessage.Accepted,
+    };
+  }
   async checkExistById(id: number) {
     const comment = await this.blogCommentRepository.findOneBy({ id });
     if (!comment) {
