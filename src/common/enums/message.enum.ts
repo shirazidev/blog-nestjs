@@ -42,6 +42,8 @@ export enum PublicMessage {
   DisLiked = 'لایک شما با موفقیت برداشته شد',
   Bookmarked = 'با موفقیت نشانه گذاری شد',
   unBookmarked = 'نشانه گذاری شما با موفقیت برداشته شد',
+  Accepted = 'با موفقیت تایید شد',
+  Rejected = 'با موفقیت رد شد',
 }
 
 export enum ConflictMessage {
