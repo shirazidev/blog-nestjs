@@ -84,4 +84,11 @@ export class CommentsService {
       comments,
     };
   }
+  async checkExistById(id: number) {
+    const comment = await this.blogCommentRepository.findOneBy({ id });
+    if (!comment) {
+      throw new BadRequestException(BadRequestMessage.InvalidComment);
+    }
+    return comment;
+  }
 }
