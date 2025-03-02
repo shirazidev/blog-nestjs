@@ -1,4 +1,14 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '../../auth/guards/auth.guard';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { CommentsService } from '../services/comments.service';
@@ -29,5 +39,10 @@ export class CommentsController {
   @ApiConsumes(SwaggerConsumesEnum.JSON, SwaggerConsumesEnum.FORM)
   async createBlog(@Body() createCommentDto: CommentDto) {
     return await this.commentService.createComment(createCommentDto);
+  }
+  @Put('/accept/:id')
+  @ApiConsumes(SwaggerConsumesEnum.JSON, SwaggerConsumesEnum.FORM)
+  async acceptBlog(@Param('id', ParseIntPipe) id: number) {
+    return await this.commentService.acceptBlog(id);
   }
 }
