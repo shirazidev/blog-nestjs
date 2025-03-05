@@ -16,7 +16,6 @@ import { SwaggerConsumesEnum } from '../../../common/enums/swagger-consumes.enum
 import { CommentDto } from '../dtos/comment.dto';
 import { SkipAuth } from '../../../common/decorators/skip-auth.decorator';
 import { PaginationDto } from '../../../common/dtos/pagination.dto';
-import { CommentQueryDto } from '../dtos/blog.dto';
 import { Pagination } from '../../../common/decorators/pagination.decorator';
 
 @Controller('blog/comment/')

@@ -23,7 +23,6 @@ import {
   paginationGenerator,
   paginationSolver,
 } from '../../../common/utils/pagination.util';
-import { CommentQueryDto } from '../dtos/blog.dto';
 
 @Injectable({ scope: Scope.REQUEST })
 export class CommentsService {
