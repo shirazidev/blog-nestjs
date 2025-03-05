@@ -5,6 +5,8 @@ export enum BadRequestMessage {
   InvalidCategory = 'دسته بندی ها را به درستی وارد کنید.',
   InvalidComment = 'متن نظر را به درستی وارد کنید.',
   CannotComment = 'شما نمیتوانید در این مقاله نظر بگذارید',
+  AlreadyAccepted = ' قبلا تایید شده است',
+  AlreadyRejected = ' قبلا رد شده است',
 }
 export enum AuthMessage {
   InvalidAuthType = 'حساب کاربری با این مشخصات قبلا ثبت شده است',
