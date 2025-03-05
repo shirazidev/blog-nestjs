@@ -18,6 +18,7 @@ import { SwaggerConsumesEnum } from 'src/common/enums/swagger-consumes.enum';
 import { PaginationDto } from '../../../common/dtos/pagination.dto';
 import { SkipAuth } from '../../../common/decorators/skip-auth.decorator';
 import { FilterBlog } from '../../../common/decorators/filter.decorator';
+import { Pagination } from '../../../common/decorators/pagination.decorator';
 
 @Controller('blog')
 @UseGuards(AuthGuard)
@@ -44,6 +45,15 @@ export class BlogController {
     @Query() filterDto: FilterBlogDto,
   ) {
     return await this.blogService.blogsList(paginationDto, filterDto);
+  }
+  @Get('/:slug')
+  @Pagination()
+  @ApiConsumes(SwaggerConsumesEnum.JSON, SwaggerConsumesEnum.FORM)
+  async findOne(
+    @Query('slug') slug: string,
+    @Query() paginationDto: PaginationDto,
+  ) {
+    return await this.blogService.findOne(slug, paginationDto);
   }
   @Put('/:id')
   @ApiConsumes(SwaggerConsumesEnum.JSON, SwaggerConsumesEnum.FORM)
