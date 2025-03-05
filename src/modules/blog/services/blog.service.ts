@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  forwardRef,
   Inject,
   Injectable,
   NotFoundException,
@@ -11,7 +12,7 @@ import { BlogEntity } from '../entities/blog.entity';
 import { Repository } from 'typeorm';
 import { CreateBlogDto, FilterBlogDto, UpdateBlogDto } from '../dtos/blog.dto';
 import { createSlug, randomId } from 'src/common/utils/functions.util';
-import { Request } from 'express';
+import { request, Request } from 'express';
 import {
   AuthMessage,
   BadRequestMessage,
@@ -32,6 +33,7 @@ import { EntityNames } from '../../../common/enums/entity.enum';
 import { BlogLikeEntity } from '../entities/like.entity';
 import { BlogBookmarksEntity } from '../entities/bookmark.entity';
 import { BlogCommentsEntity } from '../entities/comment.entity';
+import { CommentsService } from './comments.service';
 
 @Injectable({ scope: Scope.REQUEST })
 export class BlogService {
@@ -47,8 +49,11 @@ export class BlogService {
     private blogBookmarkRepository: Repository<BlogBookmarksEntity>,
     @InjectRepository(BlogCommentsEntity)
     private blogCommentRepository: Repository<BlogCommentsEntity>,
+    @Inject(forwardRef(() => CommentsService))
+    private blogCommentService: CommentsService,
     @Inject(REQUEST) private request: Request,
   ) {}
+
   async createBlog(createBlogDto: CreateBlogDto) {
     let {
       title,
@@ -96,11 +101,55 @@ export class BlogService {
     }
     return { message: PublicMessage.Created };
   }
+  async findOne(slug: string, paginationDto: PaginationDto) {
+    const userId = request?.user?.id;
+    const blog = await this.blogRepository
+      .createQueryBuilder(EntityNames.Blog)
+      .leftJoin('blog.categories', 'categories')
+      .leftJoin('blog.author', 'author')
+      .leftJoin('author.profile', 'profile')
+      .leftJoin('categories.category', 'category')
+      .addSelect([
+        'categories.id',
+        'category.title',
+        'author.username',
+        'profile.nick_name',
+        'author.id',
+      ])
+      .where('blog.slug = :slug', { slug })
+      .loadRelationCountAndMap('blog.likes', 'blog.likes')
+      .loadRelationCountAndMap('blog.bookmarks', 'blog.bookmarks')
+      .getOne();
+    if (!blog) throw new NotFoundException(NotFoundMessage.NotFoundBlog);
+    const comments = await this.blogCommentService.findPostComments(
+      blog.id,
+      paginationDto,
+    );
+    let isLiked = false;
+    let isBookmarked = false;
+    if (userId) {
+      isLiked = !!(await this.blogLikeRepository.findOneBy({
+        blogId: blog.id,
+        userId: userId,
+      }));
+      isBookmarked = !!(await this.blogBookmarkRepository.findOneBy({
+        blogId: blog.id,
+        userId: userId,
+      }));
+    }
+    return {
+      blog,
+      isLiked,
+      isBookmarked,
+      comments,
+    };
+  }
   async checkExistBySlug(slug: string) {
     const blog = await this.blogRepository.findOneBy({ slug });
     if (!blog) return false;
     return blog;
   }
+
   async getUserBlogs() {
     let user = this.request?.user;
     if (!user) throw new BadRequestException(BadRequestMessage.SomeThingWrong);
@@ -119,6 +168,7 @@ export class BlogService {
       },
     });
   }
+
   async blogsList(paginationDto: PaginationDto, filterDto: FilterBlogDto) {
     const { limit, page, skip } = paginationSolver(paginationDto);
     let { category, search } = filterDto;
@@ -169,6 +219,7 @@ export class BlogService {
 
     return { pagination: paginationGenerator(count, limit, page), blogs };
   }
+
   async checkExistBlogById(id: number) {
     const blog = await this.blogRepository.findOneBy({ id });
     if (!blog) throw new NotFoundException(NotFoundMessage.NotFoundBlog);
@@ -211,21 +262,20 @@ export class BlogService {
     blog = await this.blogRepository.save(blog);
     if (categories && isArray(categories) && categories.length > 0) {
       await this.blogCategoryRepository.delete({ blogId: blog.id });
-    }
-    for (const categoryTitle of categories) {
-      let category = await this.categoryService.findOneByTitle(
-        categoryTitle.toLowerCase(),
-      );
-      if (!category) {
-        category = await this.categoryService.insertByTitle(
+      for (const categoryTitle of categories) {
+        let category = await this.categoryService.findOneByTitle(
           categoryTitle.toLowerCase(),
         );
+        if (!category) {
+          category = await this.categoryService.insertByTitle(
+            categoryTitle.toLowerCase(),
+          );
+        }
+        await this.blogCategoryRepository.insert({
+          blogId: blog.id,
+          categoryId: category.id,
+        });
       }
-
-      await this.blogCategoryRepository.insert({
-        blogId: blog.id,
-        categoryId: category.id,
-      });
     }
     return {
       message: PublicMessage.Updated,
