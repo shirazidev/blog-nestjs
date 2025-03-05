@@ -48,6 +48,7 @@ export class BlogController {
   }
   @Get('/:slug')
   @Pagination()
+  @SkipAuth()
   @ApiConsumes(SwaggerConsumesEnum.JSON, SwaggerConsumesEnum.FORM)
   async findOne(
     @Query('slug') slug: string,
