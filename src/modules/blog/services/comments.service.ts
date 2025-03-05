@@ -1,4 +1,10 @@
-import { BadRequestException, Inject, Injectable, Scope } from '@nestjs/common';
+import {
+  BadRequestException,
+  forwardRef,
+  Inject,
+  Injectable,
+  Scope,
+} from '@nestjs/common';
 import { BlogService } from './blog.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BlogCommentsEntity } from '../entities/comment.entity';
@@ -22,6 +28,7 @@ import { CommentQueryDto } from '../dtos/blog.dto';
 @Injectable({ scope: Scope.REQUEST })
 export class CommentsService {
   constructor(
+    @Inject(forwardRef(() => BlogService))
     private blogService: BlogService,
     @InjectRepository(BlogCommentsEntity)
     private blogCommentRepository: Repository<BlogCommentsEntity>,
@@ -52,18 +59,23 @@ export class CommentsService {
       message: PublicMessage.Created,
     };
   }
-  async findPostComments(
-    idDto: CommentQueryDto,
-    paginationDto: PaginationDto,
-  ): Promise<{ pagination: any; comments: BlogCommentsEntity[] }> {
-    if (!idDto.id || isNaN(idDto.id)) {
+  async findPostComments(id: number, paginationDto: PaginationDto) {
+    if (!id || isNaN(id)) {
       throw new BadRequestException(BadRequestMessage.InvalidComment);
     }
-    const blog = await this.blogService.checkExistBlogById(idDto.id);
+    const blog = await this.blogService.checkExistBlogById(id);
     const { limit, page, skip } = paginationSolver(paginationDto);
     const [comments, count] = await this.blogCommentRepository.findAndCount({
-      where: { blogId: blog.id },
-      relations: { user: { profile: true }, blog: true },
+      where: { blogId: blog.id, parentId: undefined },
+      relations: {
+        user: { profile: true },
+        blog: true,
+        children: {
+          user: { profile: true },
+          blog: true,
+          children: { user: { profile: true }, blog: true },
+        },
+      },
       select: {
         user: {
           username: true,
@@ -73,6 +85,22 @@ export class CommentsService {
         },
         blog: {
           title: true,
+        },
+        children: {
+          user: {
+            username: true,
+            profile: {
+              nick_name: true,
+            },
+          },
+          children: {
+            user: {
+              username: true,
+              profile: {
+                nick_name: true,
+              },
+            },
+          },
         },
       },
       skip,
@@ -86,6 +114,9 @@ export class CommentsService {
   }
   async acceptBlog(id: number) {
     let comment = await this.checkExistById(id);
+    if (comment.accepted) {
+      throw new BadRequestException(BadRequestMessage.AlreadyAccepted);
+    }
     await this.blogCommentRepository.update(comment.id, { accepted: true });
     return {
       message: PublicMessage.Accepted,
@@ -93,6 +124,9 @@ export class CommentsService {
   }
   async rejectBlog(id: number) {
     let comment = await this.checkExistById(id);
+    if (!comment.accepted) {
+      throw new BadRequestException(BadRequestMessage.AlreadyRejected);
+    }
     await this.blogCommentRepository.update(comment.id, { accepted: false });
     return {
       message: PublicMessage.Rejected,
