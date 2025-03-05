@@ -25,15 +25,15 @@ import { Pagination } from '../../../common/decorators/pagination.decorator';
 @ApiTags('Blog-Comments')
 export class CommentsController {
   constructor(private readonly commentService: CommentsService) {}
-  @Get('/')
+  @Get('/:id')
   @SkipAuth()
   @Pagination()
   @ApiConsumes(SwaggerConsumesEnum.JSON, SwaggerConsumesEnum.FORM)
   async findComments(
-    @Query() idDto: CommentQueryDto,
+    @Param('id', ParseIntPipe) id: number,
     @Query() paginationDto: PaginationDto,
   ) {
-    return await this.commentService.findPostComments(idDto, paginationDto);
+    return await this.commentService.findPostComments(id, paginationDto);
   }
   @Post('/')
   @ApiConsumes(SwaggerConsumesEnum.JSON, SwaggerConsumesEnum.FORM)
