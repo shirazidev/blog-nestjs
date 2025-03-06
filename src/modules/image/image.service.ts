@@ -62,14 +62,6 @@ export class ImageService {
     return image;
   }
 
-  findAll() {
-    return `This action returns all image`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} image`;
-  }
-
   async remove(id: number) {
     const userId = this.req?.user?.id;
     const image = await this.imageRepository.findOne({ where: { id } });
