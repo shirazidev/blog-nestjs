@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Inject,
   Injectable,
   NotFoundException,
@@ -15,7 +14,6 @@ import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import {
   AuthMessage,
-  BadRequestMessage,
   NotFoundMessage,
   PublicMessage,
 } from '../../common/enums/message.enum';
@@ -64,7 +62,7 @@ export class ImageService {
 
   async remove(id: number) {
     const image = await this.findOne(id);
-    await this.imageRepository.delete(id);
+    await this.imageRepository.delete(image.id);
     return { message: PublicMessage.Deleted };
   }
 }
