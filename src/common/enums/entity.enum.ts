@@ -1,6 +1,7 @@
 export enum EntityNames {
   User = 'user',
   Profile = 'user_profile',
+  Images = 'user_images',
   Otp = 'user_otp',
   Category = 'category',
   Blog = 'blog',
