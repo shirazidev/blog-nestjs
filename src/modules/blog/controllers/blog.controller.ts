@@ -19,10 +19,10 @@ import { PaginationDto } from '../../../common/dtos/pagination.dto';
 import { SkipAuth } from '../../../common/decorators/skip-auth.decorator';
 import { FilterBlog } from '../../../common/decorators/filter.decorator';
 import { Pagination } from '../../../common/decorators/pagination.decorator';
+import { AuthDecorator } from '../../../common/decorators/auth.decorator';
 
 @Controller('blog')
-@UseGuards(AuthGuard)
-@ApiBearerAuth('Authorization')
+@AuthDecorator()
 @ApiTags('Blog')
 export class BlogController {
   constructor(private readonly blogService: BlogService) {}

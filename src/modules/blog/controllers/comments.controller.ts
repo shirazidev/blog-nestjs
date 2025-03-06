@@ -17,10 +17,10 @@ import { CommentDto } from '../dtos/comment.dto';
 import { SkipAuth } from '../../../common/decorators/skip-auth.decorator';
 import { PaginationDto } from '../../../common/dtos/pagination.dto';
 import { Pagination } from '../../../common/decorators/pagination.decorator';
+import { AuthDecorator } from '../../../common/decorators/auth.decorator';
 
 @Controller('blog/comment/')
-@UseGuards(AuthGuard)
-@ApiBearerAuth('Authorization')
+@AuthDecorator()
 @ApiTags('Blog-Comments')
 export class CommentsController {
   constructor(private readonly commentService: CommentsService) {}

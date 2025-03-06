@@ -1,4 +1,10 @@
-import { ChangeEmailDto, ChangePhoneDto, ChangeUsernameDto, ProfileDto, VerifyDto } from './dto/user.dto';
+import {
+  ChangeEmailDto,
+  ChangePhoneDto,
+  ChangeUsernameDto,
+  ProfileDto,
+  VerifyDto,
+} from './dto/user.dto';
 import {
   Controller,
   Get,
@@ -31,6 +37,7 @@ import { UploadedOptionalFiles } from 'src/common/decorators/upload-file.decorat
 import { cookieKeys } from 'src/common/enums/cookie.enum';
 import { CookiesOptionsToken } from 'src/common/utils/cookie.util';
 import { PublicMessage } from 'src/common/enums/message.enum';
+import { AuthDecorator } from '../../common/decorators/auth.decorator';
 
 @Controller('user')
 @ApiTags('User')
@@ -68,15 +75,19 @@ export class UserController {
   @ApiBearerAuth('Authorization')
   @ApiConsumes(SwaggerConsumesEnum.JSON, SwaggerConsumesEnum.FORM)
   async changeUsername(@Body() changeUsernameDto: ChangeUsernameDto) {
-    return await this.userService.changeUserName(changeUsernameDto.username)
+    return await this.userService.changeUserName(changeUsernameDto.username);
   }
   @Patch('/change-email')
   @UseGuards(AuthGuard)
   @ApiBearerAuth('Authorization')
   @ApiConsumes(SwaggerConsumesEnum.JSON, SwaggerConsumesEnum.FORM)
-  async changeEmail(@Body() changeEmailDto: ChangeEmailDto, @Res() res:Response) {
-    const {code, emailToken, message} = await this.userService.changeEmail(changeEmailDto);
-    if(message && !code && !emailToken) return res.json({message});
+  async changeEmail(
+    @Body() changeEmailDto: ChangeEmailDto,
+    @Res() res: Response,
+  ) {
+    const { code, emailToken, message } =
+      await this.userService.changeEmail(changeEmailDto);
+    if (message && !code && !emailToken) return res.json({ message });
     res.cookie(cookieKeys.EmailOTP, emailToken, CookiesOptionsToken());
     return res.json({
       message: PublicMessage.SentOtp,
@@ -88,15 +99,20 @@ export class UserController {
   @ApiBearerAuth('Authorization')
   @ApiConsumes(SwaggerConsumesEnum.JSON, SwaggerConsumesEnum.FORM)
   async verifyEmail(@Body() verifyEmailDto: VerifyDto) {
-    return this.userService.verifyEmail(verifyEmailDto.code)
+    return this.userService.verifyEmail(verifyEmailDto.code);
   }
   @Patch('/change-phone')
   @UseGuards(AuthGuard)
   @ApiBearerAuth('Authorization')
   @ApiConsumes(SwaggerConsumesEnum.JSON, SwaggerConsumesEnum.FORM)
-  async changePhone(@Body() changePhoneDto: ChangePhoneDto, @Res() res:Response) {
-    const {code, phoneToken, message} = await this.userService.changePhone(changePhoneDto.phone);
-    if(message && !code && !phoneToken) return res.json({message});
+  async changePhone(
+    @Body() changePhoneDto: ChangePhoneDto,
+    @Res() res: Response,
+  ) {
+    const { code, phoneToken, message } = await this.userService.changePhone(
+      changePhoneDto.phone,
+    );
+    if (message && !code && !phoneToken) return res.json({ message });
     res.cookie(cookieKeys.PhoneOTP, phoneToken, CookiesOptionsToken());
     return res.json({
       message: PublicMessage.SentOtp,
@@ -108,6 +124,6 @@ export class UserController {
   @ApiBearerAuth('Authorization')
   @ApiConsumes(SwaggerConsumesEnum.JSON, SwaggerConsumesEnum.FORM)
   async verifyPhone(@Body() verifyPhoneDto: VerifyDto) {
-    return this.userService.verifyPhone(verifyPhoneDto.code)
+    return this.userService.verifyPhone(verifyPhoneDto.code);
   }
 }
