@@ -1,5 +1,11 @@
 import { BaseEntity } from '../../../common/abstracts/base.entity';
-import { Column, CreateDateColumn, Entity, ManyToOne } from 'typeorm';
+import {
+  AfterLoad,
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+} from 'typeorm';
 import { UserEntity } from '../../user/entities/user.entity';
 import { EntityNames } from '../../../common/enums/entity.enum';
 @Entity(EntityNames.Images)
@@ -16,4 +22,8 @@ export class ImageEntity extends BaseEntity {
   created_at: Date;
   @ManyToOne(() => UserEntity, (user) => user.images)
   user: UserEntity;
+  @AfterLoad()
+  map() {
+    this.location = `http://localhost:3000/${this.location}`;
+  }
 }
