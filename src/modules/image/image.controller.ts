@@ -11,9 +11,7 @@ import {
 import { ImageService } from './image.service';
 import { ImageDto } from './dto/image.dto';
 import { ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { AuthGuard } from '../auth/guards/auth.guard';
 import { AuthDecorator } from '../../common/decorators/auth.decorator';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadFile } from '../../common/interceptors/upload.interceptor';
 import { multerFile } from '../../common/utils/multer.util';
 import { SwaggerConsumesEnum } from '../../common/enums/swagger-consumes.enum';
