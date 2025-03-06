@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToMany,
   OneToOne,
   UpdateDateColumn,
@@ -15,6 +16,7 @@ import { BlogEntity } from 'src/modules/blog/entities/blog.entity';
 import { BlogLikeEntity } from 'src/modules/blog/entities/like.entity';
 import { BlogBookmarksEntity } from 'src/modules/blog/entities/bookmark.entity';
 import { BlogCommentsEntity } from 'src/modules/blog/entities/comment.entity';
+import { ImageEntity } from '../../image/entities/image.entity';
 
 @Entity(EntityNames.User)
 export class UserEntity extends BaseEntity {
@@ -56,6 +58,8 @@ export class UserEntity extends BaseEntity {
   blog_bookmarks: BlogBookmarksEntity[];
   @OneToMany(() => BlogCommentsEntity, (comment) => comment.user)
   blog_comments: BlogCommentsEntity[];
+  @OneToMany(() => ImageEntity, (image) => image.user)
+  images: ImageEntity[];
   @CreateDateColumn()
   created_at: Date;
   @UpdateDateColumn()
