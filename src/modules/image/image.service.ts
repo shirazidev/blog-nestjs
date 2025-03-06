@@ -27,7 +27,6 @@ export class ImageService {
     private imageRepository: Repository<ImageEntity>,
     @Inject(REQUEST) private req: Request,
   ) {}
-  create(createImageDto: ImageDto, image: multerFile) {
   async create(createImageDto: ImageDto, image: multerFile) {
     const userId = this.req?.user?.id;
     const { alt, name } = createImageDto;
@@ -43,6 +42,23 @@ export class ImageService {
     };
   }
 
+  async findAll() {
+    const userId = this.req?.user?.id;
+    return await this.imageRepository.find({
+      where: { userId: userId },
+      order: { id: 'desc' },
+    });
+  }
+
+  async findOne(id: number) {
+    const userId = this.req?.user?.id;
+    const image = await this.imageRepository.findOne({ where: { id } });
+    if (!image) {
+      throw new NotFoundException(NotFoundMessage.NotFoundImage);
+    }
+    if (image.userId !== userId) {
+      throw new UnauthorizedException(AuthMessage.TryAgain);
+    }
     return image;
   }
 
