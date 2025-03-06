@@ -63,14 +63,8 @@ export class ImageService {
   }
 
   async remove(id: number) {
-    const userId = this.req?.user?.id;
-    const image = await this.imageRepository.findOne({ where: { id } });
-    if (!image) {
-      throw new BadRequestException(BadRequestMessage.SomeThingWrong);
-    }
-    if (image.userId !== userId) {
-      throw new UnauthorizedException(AuthMessage.TryAgain);
-    }
+    const image = await this.findOne(id);
+    await this.imageRepository.delete(id);
     return { message: PublicMessage.Deleted };
   }
 }
