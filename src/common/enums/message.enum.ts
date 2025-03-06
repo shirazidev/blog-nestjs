@@ -27,6 +27,7 @@ export enum AuthMessage {
 export enum NotFoundMessage {
   NotFoundCategory = 'دسته بندی یافت نشد.',
   NotFoundBlog = 'مقاله مورد نظر یافت نشد.',
+  NotFoundImage = 'تصویر یافت نشد.',
 }
 export enum ValidationMessage {
   ImageFormatIncorrect = 'فرمت تصویر باید یکی از فرمت های زیر باشد: png, jpg, jpeg, gif, svg, webp, bmp, tiff, ico, jpe',
