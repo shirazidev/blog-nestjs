@@ -70,7 +70,15 @@ export class ImageService {
     return `This action returns a #${id} image`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} image`;
+  async remove(id: number) {
+    const userId = this.req?.user?.id;
+    const image = await this.imageRepository.findOne({ where: { id } });
+    if (!image) {
+      throw new BadRequestException(BadRequestMessage.SomeThingWrong);
+    }
+    if (image.userId !== userId) {
+      throw new UnauthorizedException(AuthMessage.TryAgain);
+    }
+    return { message: PublicMessage.Deleted };
   }
 }
