@@ -12,7 +12,7 @@ export class KavenegarService {
   async SendVerificationSMS(receptor: string, code: string) {
     const params = querystring.stringify({
       receptor,
-      code,
+      token: code,
       template: SmsTemplate.Verify,
     });
     console.log(params);
