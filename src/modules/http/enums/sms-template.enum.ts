@@ -1,3 +1,3 @@
 export enum SmsTemplate {
-  Verify = 'verify',
+  Verify = 'sms-login-register',
 }
