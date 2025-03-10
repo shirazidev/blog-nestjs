@@ -21,11 +21,12 @@ import {
 } from 'src/common/enums/message.enum';
 import { OtpEntity } from '../user/entities/otp.entity';
 import { randomInt } from 'crypto';
-import { Response, Request } from 'express';
+import { Request, Response } from 'express';
 import { cookieKeys } from 'src/common/enums/cookie.enum';
 import { AuthResponse } from './types/response';
 import { REQUEST } from '@nestjs/core';
 import { CookiesOptionsToken } from 'src/common/utils/cookie.util';
+import { KavenegarService } from '../http/kavenegar.service';
 
 @Injectable({ scope: Scope.REQUEST })
 export class AuthService {
@@ -37,6 +38,7 @@ export class AuthService {
     @InjectRepository(OtpEntity)
     private otpRepository: Repository<OtpEntity>,
     private tokenService: TokenService,
+    private kavenegarService: KavenegarService,
     @Inject(REQUEST) private request: Request,
   ) {}
   async userExistence(authDto: AuthDto, res: Response) {
@@ -45,12 +47,19 @@ export class AuthService {
     switch (type) {
       case AuthTypeEnum.Login:
         result = await this.login(username, method, res);
-        return this.sendResponse(result, res);
+        await this.sendOtp(method, username, result.otpcode);
       case AuthTypeEnum.Register:
         result = await this.register(username, method, res);
+        await this.sendOtp(method, username, result.otpcode);
         return this.sendResponse(result, res);
       default:
         throw new UnauthorizedException('Invalid auth type');
+    }
+  }
+  async sendOtp(method: AuthMethod, username: string, code: string) {
+    if (method === AuthMethod.Email) {
+    } else if (method === AuthMethod.Phone) {
+      await this.kavenegarService.SendVerificationSMS(username, code);
     }
   }
   async login(username: string, method: AuthMethod, res: Response) {
@@ -82,14 +91,14 @@ export class AuthService {
     return {
       otpcode: otp.code,
       token,
+      mobile: user.phone,
     };
   }
   async sendResponse(result: AuthResponse, res: Response) {
-    const { otpcode, token } = result;
+    const { token } = result;
     res.cookie(cookieKeys.OTP, token, CookiesOptionsToken());
     res.json({
       message: AuthMessage.SentOtp,
-      otpcode,
     });
   }
   async SaveOtp(userId: number, method: AuthMethod) {
@@ -103,7 +112,7 @@ export class AuthService {
       existOtp = true;
       otp.code = code;
       otp.expires_in = expires_in;
-      otp.method = method
+      otp.method = method;
     } else {
       otp = this.otpRepository.create({ code, expires_in, userId, method });
     }
