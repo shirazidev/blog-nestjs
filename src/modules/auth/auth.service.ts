@@ -48,6 +48,7 @@ export class AuthService {
       case AuthTypeEnum.Login:
         result = await this.login(username, method, res);
         await this.sendOtp(method, username, result.otpcode);
+        return this.sendResponse(result, res);
       case AuthTypeEnum.Register:
         result = await this.register(username, method, res);
         await this.sendOtp(method, username, result.otpcode);
