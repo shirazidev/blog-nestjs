@@ -13,13 +13,11 @@ import {
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { ApiBearerAuth, ApiConsumes, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { SwaggerConsumesEnum } from 'src/common/enums/swagger-consumes.enum';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { Pagination } from 'src/common/decorators/pagination.decorator';
-import { CanAccess } from '../../common/decorators/role.decorator';
-import { Roles } from '../../common/enums/role.enum';
 
 @Controller('category')
 @ApiTags('Category')
