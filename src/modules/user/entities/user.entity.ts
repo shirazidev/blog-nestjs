@@ -16,6 +16,7 @@ import { BlogLikeEntity } from 'src/modules/blog/entities/like.entity';
 import { BlogBookmarksEntity } from 'src/modules/blog/entities/bookmark.entity';
 import { BlogCommentsEntity } from 'src/modules/blog/entities/comment.entity';
 import { ImageEntity } from '../../image/entities/image.entity';
+import { Roles } from '../../../common/enums/role.enum';
 
 @Entity(EntityNames.User)
 export class UserEntity extends BaseEntity {
@@ -25,6 +26,8 @@ export class UserEntity extends BaseEntity {
   phone: string;
   @Column({ unique: true, nullable: true })
   email: string;
+  @Column({ nullable: false, default: Roles.User })
+  role: string;
   @Column({ unique: true, nullable: true })
   newEmail: string;
   @Column({ unique: true, nullable: true })
