@@ -14,7 +14,6 @@ import {
   UseGuards,
   UseInterceptors,
   Res,
-  Delete,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
