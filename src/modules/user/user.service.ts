@@ -109,21 +109,21 @@ export class UserService {
     });
     return profile;
   }
-  async changeUserName(username: string){
+  async changeUserName(username: string) {
     const req = this.req.user;
     if (!req) throw new UnauthorizedException(AuthMessage.LoginIsRequired);
-    const user = await this.userRepository.findOneBy({username});
-    if(user && user.id !== req.id){
+    const user = await this.userRepository.findOneBy({ username });
+    if (user && user.id !== req.id) {
       throw new ConflictException(AuthMessage.UsernameExist);
-    }else if(user && user.id === req.id){
+    } else if (user && user.id === req.id) {
       return {
-        message: PublicMessage.Updated
-      }
+        message: PublicMessage.Updated,
+      };
     }
-    await this.userRepository.update({id: req.id}, {username})
+    await this.userRepository.update({ id: req.id }, { username });
     return {
-      message: PublicMessage.Updated
-    }
+      message: PublicMessage.Updated,
+    };
   }
   async changeEmail(changeEmailDto: ChangeEmailDto) {
     const reqUser = this.req.user;
@@ -169,7 +169,7 @@ export class UserService {
     }
     await this.userRepository.update(
       { id },
-      { email: newEmail, verifyEmail: true, newEmail: "" },
+      { email: newEmail, verifyEmail: true, newEmail: '' },
     );
     return {
       message: PublicMessage.Updated,
@@ -188,10 +188,7 @@ export class UserService {
         message: PublicMessage.Updated,
       };
     }
-    await this.userRepository.update(
-      { id: reqUser.id },
-      { newPhone: phone },
-    );
+    await this.userRepository.update({ id: reqUser.id }, { newPhone: phone });
 
     const otp = await this.authService.SaveOtp(reqUser.id, AuthMethod.Phone);
     const { phoneToken } = this.tokenService.createPhoneToken({
@@ -219,7 +216,7 @@ export class UserService {
     }
     await this.userRepository.update(
       { id },
-      { phone: newPhone, verifyPhone: true, newPhone: "" },
+      { phone: newPhone, verifyPhone: true, newPhone: '' },
     );
     return {
       message: PublicMessage.Updated,
