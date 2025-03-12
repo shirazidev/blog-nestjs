@@ -201,6 +201,7 @@ export class AuthService {
         newEmail: true,
         verifyEmail: true,
         profileId: true,
+        role: true,
       },
     });
     if (!user) throw new UnauthorizedException(AuthMessage.LoginAgain);
