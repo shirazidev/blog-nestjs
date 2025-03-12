@@ -1,15 +1,14 @@
 import { UserEntity } from 'src/modules/user/entities/user.entity';
-import { TokenService } from './../auth/tokens.service';
-import { AuthService } from './../auth/auth.service';
+import { TokenService } from '../auth/tokens.service';
+import { AuthService } from '../auth/auth.service';
 import {
   BadRequestException,
+  ConflictException,
   Inject,
   Injectable,
   Scope,
   UnauthorizedException,
-  ConflictException,
 } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
 import { ChangeEmailDto, ProfileDto } from './dto/user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProfileEntity } from './entities/profile.entity';
@@ -94,7 +93,7 @@ export class UserService {
     if (!user) {
       throw new UnauthorizedException(AuthMessage.LoginIsRequired);
     }
-    const profile = await this.userRepository.findOne({
+    return await this.userRepository.findOne({
       where: { id: user.id },
       relations: ['profile'],
       select: [
@@ -107,7 +106,6 @@ export class UserService {
         'profile',
       ],
     });
-    return profile;
   }
   async changeUserName(username: string) {
     const req = this.req.user;
@@ -155,7 +153,7 @@ export class UserService {
   async verifyEmail(code: string) {
     const req = this.req.user;
     if (!req) throw new BadRequestException(AuthMessage.LoginIsRequired);
-    const { id, newEmail, username } = req;
+    const { id, newEmail } = req;
     let token = this.req.cookies[cookieKeys.EmailOTP];
     if (!token) throw new BadRequestException(AuthMessage.ExpiredCode);
     const { email } = this.tokenService.verifyEmailToken(token);
