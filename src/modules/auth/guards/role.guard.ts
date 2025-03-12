@@ -5,8 +5,6 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Observable } from 'rxjs';
-import { SKIP_AUTH } from '../../../common/decorators/skip-auth.decorator';
 import { ROLE_KEY } from '../../../common/decorators/role.decorator';
 import { Roles } from '../../../common/enums/role.enum';
 import { Request } from 'express';
