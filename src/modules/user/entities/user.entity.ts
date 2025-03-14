@@ -63,9 +63,9 @@ export class UserEntity extends BaseEntity {
   blog_comments: BlogCommentsEntity[];
   @OneToMany(() => ImageEntity, (image) => image.user)
   images: ImageEntity[];
-  @OneToMany(() => FollowEntity, (follow) => follow.follower)
-  followers: FollowEntity[];
   @OneToMany(() => FollowEntity, (follow) => follow.following)
+  followers: FollowEntity[];
+  @OneToMany(() => FollowEntity, (follow) => follow.follower)
   followings: FollowEntity[];
   @CreateDateColumn()
   created_at: Date;
