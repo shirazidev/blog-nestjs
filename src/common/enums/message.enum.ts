@@ -28,6 +28,7 @@ export enum NotFoundMessage {
   NotFoundCategory = 'دسته بندی یافت نشد.',
   NotFoundBlog = 'مقاله مورد نظر یافت نشد.',
   NotFoundImage = 'تصویر یافت نشد.',
+  NotFoundUser = 'کاربر یافت نشد.',
 }
 export enum ValidationMessage {
   ImageFormatIncorrect = 'فرمت تصویر باید یکی از فرمت های زیر باشد: png, jpg, jpeg, gif, svg, webp, bmp, tiff, ico, jpe',
@@ -47,6 +48,9 @@ export enum PublicMessage {
   unBookmarked = 'نشانه گذاری شما با موفقیت برداشته شد',
   Accepted = 'با موفقیت تایید شد',
   Rejected = 'با موفقیت رد شد',
+  Unfollowed = 'دیگر دنبال نمی شود.',
+  Followed = 'دنبال شد.',
+  YouCantFollowYourself = 'شما نمیتوانید خودتان را دنبال کنید',
 }
 
 export enum ConflictMessage {
