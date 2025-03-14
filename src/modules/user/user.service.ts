@@ -6,6 +6,7 @@ import {
   ConflictException,
   Inject,
   Injectable,
+  NotFoundException,
   Scope,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -17,6 +18,7 @@ import { Request } from 'express';
 import {
   AuthMessage,
   BadRequestMessage,
+  NotFoundMessage,
   PublicMessage,
 } from 'src/common/enums/message.enum';
 import { REQUEST } from '@nestjs/core';
@@ -26,6 +28,8 @@ import { ProfileImages } from './types/files';
 import { OtpEntity } from './entities/otp.entity';
 import { cookieKeys } from 'src/common/enums/cookie.enum';
 import { AuthMethod } from '../auth/enums/method.enum';
+import { FollowEntity } from './entities/follow.entity';
+import { EntityNames } from '../../common/enums/entity.enum';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UserService {
@@ -39,6 +43,8 @@ export class UserService {
     private authService: AuthService,
     @InjectRepository(OtpEntity)
     private otpRepository: Repository<OtpEntity>,
+    @InjectRepository(FollowEntity)
+    private followRepository: Repository<FollowEntity>,
   ) {}
   async changeProfile(files: ProfileImages, profileDto: ProfileDto) {
     let { image_profile, image_bg } = files;
@@ -93,19 +99,14 @@ export class UserService {
     if (!user) {
       throw new UnauthorizedException(AuthMessage.LoginIsRequired);
     }
-    return await this.userRepository.findOne({
-      where: { id: user.id },
-      relations: ['profile'],
-      select: [
-        'id',
-        'username',
-        'email',
-        'phone',
-        'created_at',
-        'updated_at',
-        'profile',
-      ],
-    });
+    return this.userRepository
+      .createQueryBuilder(EntityNames.User)
+      .addSelect('profile')
+      .leftJoinAndSelect('user.profile', 'profile')
+      .loadRelationCountAndMap('user.followers', 'user.followers')
+      .loadRelationCountAndMap('user.followings', 'user.followings')
+      .where({ id: user.id })
+      .getOne();
   }
   async changeUserName(username: string) {
     const req = this.req.user;
@@ -230,5 +231,35 @@ export class UserService {
     if (code !== otp.code)
       throw new BadRequestException(AuthMessage.InvalidLogin);
     return otp;
+  }
+  async followToggle(id: number) {
+    const user = this.req.user;
+    if (!user) throw new UnauthorizedException(AuthMessage.LoginIsRequired);
+    let message: string;
+    const following = await this.checkExistById(id);
+    if (user.id === following.id)
+      throw new BadRequestException(PublicMessage.YouCantFollowYourself);
+    const isFollowed = await this.followRepository.findOneBy({
+      followingId: following.id,
+      followerId: user.id,
+    });
+    if (isFollowed) {
+      await this.followRepository.delete({ id: isFollowed.id });
+      message = PublicMessage.Unfollowed;
+    } else {
+      await this.followRepository.insert({
+        followingId: following.id,
+        followerId: user.id,
+      });
+      message = PublicMessage.Followed;
+    }
+    return {
+      message,
+    };
+  }
+  async checkExistById(id: number) {
+    const user = await this.userRepository.findOneBy({ id });
+    if (!user) throw new NotFoundException(NotFoundMessage.NotFoundUser);
+    return user;
   }
 }
