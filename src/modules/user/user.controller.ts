@@ -6,14 +6,15 @@ import {
   VerifyDto,
 } from './dto/user.dto';
 import {
+  Body,
   Controller,
   Get,
-  Body,
+  Param,
   Patch,
   Put,
+  Res,
   UseGuards,
   UseInterceptors,
-  Res,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
@@ -27,6 +28,9 @@ import { UploadedOptionalFiles } from 'src/common/decorators/upload-file.decorat
 import { cookieKeys } from 'src/common/enums/cookie.enum';
 import { CookiesOptionsToken } from 'src/common/utils/cookie.util';
 import { PublicMessage } from 'src/common/enums/message.enum';
+import { AuthDecorator } from '../../common/decorators/auth.decorator';
+import { CanAccess } from '../../common/decorators/role.decorator';
+import { Roles } from '../../common/enums/role.enum';
 
 @Controller('user')
 @ApiTags('User')
@@ -114,5 +118,11 @@ export class UserController {
   @ApiConsumes(SwaggerConsumesEnum.JSON, SwaggerConsumesEnum.FORM)
   async verifyPhone(@Body() verifyPhoneDto: VerifyDto) {
     return this.userService.verifyPhone(verifyPhoneDto.code);
+  }
+  @Get('/follow/:id')
+  @AuthDecorator()
+  @CanAccess(Roles.Admin, Roles.User)
+  async followUser(@Param('id') id: number) {
+    return this.userService.followToggle(id);
   }
 }
