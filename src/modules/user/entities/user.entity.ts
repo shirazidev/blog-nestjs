@@ -18,6 +18,7 @@ import { BlogCommentsEntity } from 'src/modules/blog/entities/comment.entity';
 import { ImageEntity } from '../../image/entities/image.entity';
 import { Roles } from '../../../common/enums/role.enum';
 import { FollowEntity } from './follow.entity';
+import { UserStatus } from '../enums/status.enum';
 
 @Entity(EntityNames.User)
 export class UserEntity extends BaseEntity {
@@ -29,6 +30,8 @@ export class UserEntity extends BaseEntity {
   email: string;
   @Column({ nullable: false, default: Roles.User })
   role: string;
+  @Column({ nullable: false, default: UserStatus.Normal })
+  status: string;
   @Column({ unique: true, nullable: true })
   newEmail: string;
   @Column({ unique: true, nullable: true })
