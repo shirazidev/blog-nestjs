@@ -11,6 +11,7 @@ import {
   Get,
   Param,
   Patch,
+  Post,
   Put,
   Res,
   UseGuards,
@@ -31,6 +32,7 @@ import { PublicMessage } from 'src/common/enums/message.enum';
 import { AuthDecorator } from '../../common/decorators/auth.decorator';
 import { CanAccess } from '../../common/decorators/role.decorator';
 import { Roles } from '../../common/enums/role.enum';
+import { BanUserDto } from './dto/ban-user.dto';
 
 @Controller('user')
 @ApiTags('User')
@@ -136,5 +138,11 @@ export class UserController {
   @CanAccess(Roles.Admin, Roles.User)
   async userFollowings(@Param('username') username: string) {
     return this.userService.userFollowings(username);
+  }
+  @Post('/ban/:username')
+  @AuthDecorator()
+  @CanAccess(Roles.Admin)
+  async banToggle(@Body() banUserDto: BanUserDto) {
+    return this.userService.banToggle(banUserDto);
   }
 }
