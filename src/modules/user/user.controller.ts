@@ -124,6 +124,13 @@ export class UserController {
   @CanAccess(Roles.Admin, Roles.User)
   async followUser(@Param('id') id: number) {
     return this.userService.followToggle(id);
+  }
+  @Get('/followers/:username')
+  @AuthDecorator()
+  @CanAccess(Roles.Admin, Roles.User)
+  async userFollowers(@Param('username') username: string) {
+    return this.userService.userFollowers(username);
+  }
   @Get('/followings/:username')
   @AuthDecorator()
   @CanAccess(Roles.Admin, Roles.User)
