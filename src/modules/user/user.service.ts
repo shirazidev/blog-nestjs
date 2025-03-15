@@ -257,8 +257,36 @@ export class UserService {
       message,
     };
   }
+  async userFollowings(username: string) {
+    const user = await this.checkExistByUserName(username);
+    return await this.followRepository.find({
+      where: { followerId: user.id },
+      relations: {
+        following: {
+          profile: true,
+        },
+      },
+      select: {
+        id: true,
+        following: {
+          id: true,
+          username: true,
+          profile: {
+            id: true,
+            nick_name: true,
+            image_profile: true,
+          },
+        },
+      },
+    });
+  }
   async checkExistById(id: number) {
     const user = await this.userRepository.findOneBy({ id });
+    if (!user) throw new NotFoundException(NotFoundMessage.NotFoundUser);
+    return user;
+  }
+  async checkExistByUserName(username: string) {
+    const user = await this.userRepository.findOneBy({ username });
     if (!user) throw new NotFoundException(NotFoundMessage.NotFoundUser);
     return user;
   }
