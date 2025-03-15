@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { isJWT } from 'class-validator';
 import { Request } from 'express';
-import { Observable } from 'rxjs';
 import { AuthMessage } from 'src/common/enums/message.enum';
 import { AuthService } from '../auth.service';
 import { Reflector } from '@nestjs/core';
