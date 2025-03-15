@@ -23,6 +23,7 @@ export enum AuthMessage {
   InvalidEmail = 'ایمیل نامعتبر است',
   InvalidPhone = 'شماره موبایل نامعتبر است',
   UsernameExist = 'این نام کاربری از قبل وجود دارد.',
+  BanAccess = 'حساب کاربری شما به دلایلی مسدود شده است، لطفا با پشتیبانی تماس بگیرید.',
 }
 export enum NotFoundMessage {
   NotFoundCategory = 'دسته بندی یافت نشد.',
@@ -51,6 +52,8 @@ export enum PublicMessage {
   Unfollowed = 'دیگر دنبال نمی شود.',
   Followed = 'دنبال شد.',
   YouCantFollowYourself = 'شما نمیتوانید خودتان را دنبال کنید',
+  Banned = 'کاربر با موفقیت مسدود شد.',
+  UnBanned = 'کاربر با موفقیت رفع مسدود شد.',
 }
 
 export enum ConflictMessage {
