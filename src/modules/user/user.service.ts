@@ -257,6 +257,29 @@ export class UserService {
       message,
     };
   }
+  async userFollowers(username: string) {
+    const user = await this.checkExistByUserName(username);
+    return await this.followRepository.find({
+      where: { followingId: user.id },
+      relations: {
+        follower: {
+          profile: true,
+        },
+      },
+      select: {
+        id: true,
+        follower: {
+          id: true,
+          username: true,
+          profile: {
+            id: true,
+            nick_name: true,
+            image_profile: true,
+          },
+        },
+      },
+    });
+  }
   async userFollowings(username: string) {
     const user = await this.checkExistByUserName(username);
     return await this.followRepository.find({
