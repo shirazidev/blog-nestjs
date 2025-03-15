@@ -30,6 +30,8 @@ import { cookieKeys } from 'src/common/enums/cookie.enum';
 import { AuthMethod } from '../auth/enums/method.enum';
 import { FollowEntity } from './entities/follow.entity';
 import { EntityNames } from '../../common/enums/entity.enum';
+import { BanUserDto } from './dto/ban-user.dto';
+import { UserStatus } from './enums/status.enum';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UserService {
@@ -302,6 +304,24 @@ export class UserService {
         },
       },
     });
+  }
+  async banToggle(banUserDto: BanUserDto) {
+    const { username } = banUserDto;
+    let user = await this.checkExistByUserName(username);
+    let message = PublicMessage.Banned;
+    if (user.status === UserStatus.Ban) {
+      user.status = UserStatus.Normal;
+      message = PublicMessage.UnBanned;
+    } else if (
+      user.status === UserStatus.Normal ||
+      user.status === UserStatus.Report
+    ) {
+      user.status = UserStatus.Ban;
+    }
+    await this.userRepository.save(user);
+    return {
+      message,
+    };
   }
   async checkExistById(id: number) {
     const user = await this.userRepository.findOneBy({ id });
