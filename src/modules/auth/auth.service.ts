@@ -83,7 +83,7 @@ export class AuthService {
       throw new UnauthorizedException(BadRequestMessage.InvalidRegisterData);
     user = this.userRepository.create({ [method]: username });
     user = await this.userRepository.save(user);
-    await this.userRepository.update(user.id, { username: `m_${user.id},` });
+    await this.userRepository.update(user.id, { username: `m_${user.id}=` });
     const otp = await this.SaveOtp(user.id, method);
     otp.method = method;
     await this.otpRepository.save(otp);
