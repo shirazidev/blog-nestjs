@@ -18,5 +18,9 @@ namespace NodeJS {
     PHONE_SECRET_TOKEN: string;
     EMAIL_SECRET_TOKEN: string;
     SEND_SMS_URL: string;
+
+    // OAuth
+    GOOGLE_CLIENT_ID: string;
+    GOOGLE_CLIENT_SECRET: string;
   }
 }
