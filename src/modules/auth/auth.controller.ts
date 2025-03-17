@@ -1,9 +1,9 @@
-import { Controller, Get, Post, Body, Res, Req } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { AuthDto, CheckOtpDto } from './dto/auth.dto';
 import { SwaggerConsumesEnum } from 'src/common/enums/swagger-consumes.enum';
-import { Response, Request } from 'express';
+import { Request, Response } from 'express';
 import { AuthDecorator } from '../../common/decorators/auth.decorator';
 import { CanAccess } from '../../common/decorators/role.decorator';
 import { Roles } from '../../common/enums/role.enum';
@@ -27,7 +27,7 @@ export class AuthController {
   }
   @Get('/check-auth')
   @AuthDecorator()
-  @CanAccess(Roles.Admin)
+  @CanAccess(Roles.Admin, Roles.User)
   async checkAuth(@Req() req: Request) {
     return req.user;
   }
