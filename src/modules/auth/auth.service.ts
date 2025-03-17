@@ -23,10 +23,11 @@ import { OtpEntity } from '../user/entities/otp.entity';
 import { randomInt } from 'crypto';
 import { Request, Response } from 'express';
 import { cookieKeys } from 'src/common/enums/cookie.enum';
-import { AuthResponse } from './types/response';
+import { AuthResponse, GoogleUser } from './types/response';
 import { REQUEST } from '@nestjs/core';
 import { CookiesOptionsToken } from 'src/common/utils/cookie.util';
 import { KavenegarService } from '../http/kavenegar.service';
+import { randomId } from '../../common/utils/functions.util';
 
 @Injectable({ scope: Scope.REQUEST })
 export class AuthService {
@@ -206,5 +207,45 @@ export class AuthService {
     });
     if (!user) throw new UnauthorizedException(AuthMessage.LoginAgain);
     return user;
+  }
+  async googleAuth(userData: GoogleUser) {
+    const { firstName, lastName, picture, email } = userData;
+    let token: string;
+    let user = await this.userRepository.findOneBy({ email });
+    if (user) {
+      let payload = {
+        userId: user?.id,
+        username: user?.username,
+      };
+      token = await this.getAccessToken(payload);
+    } else {
+      user = this.userRepository.create({
+        email,
+        verifyEmail: true,
+        username: email.split('@')['0'] + randomId(),
+      });
+      user = await this.userRepository.save(user);
+      let profile = this.profileRepository.create({
+        userId: user.id,
+        nick_name: `${firstName} ${lastName}`,
+        image_profile: picture,
+      });
+      profile = await this.profileRepository.save(profile);
+      user.profileId = profile.id;
+      user = await this.userRepository.save(user);
+      let payload = {
+        userId: user?.id,
+        username: user?.username,
+      };
+      token = await this.getAccessToken(payload);
+    }
+
+    return {
+      token,
+    };
+  }
+  async getAccessToken(payload: any) {
+    const { accessToken } = this.tokenService.createJwtToken(payload);
+    return accessToken;
   }
 }
