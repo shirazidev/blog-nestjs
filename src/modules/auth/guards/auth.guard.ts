@@ -27,7 +27,6 @@ export class AuthGuard implements CanActivate {
     const httpContext = context.switchToHttp();
     const request: Request = httpContext.getRequest<Request>();
     const token = this.extractToken(request);
-
     request.user = await this.authService.validateAccessToken(token);
     if (request.user.status === UserStatus.Ban) {
       throw new UnauthorizedException(AuthMessage.BanAccess);
