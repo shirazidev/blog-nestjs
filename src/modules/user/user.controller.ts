@@ -14,14 +14,12 @@ import {
   Post,
   Put,
   Res,
-  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { SwaggerConsumesEnum } from 'src/common/enums/swagger-consumes.enum';
-import { AuthGuard } from '../auth/guards/auth.guard';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { multerProfileStorage } from 'src/common/utils/multer.util';
 import { ProfileImages } from './types/files';
@@ -36,6 +34,7 @@ import { BanUserDto } from './dto/ban-user.dto';
 
 @Controller('user')
 @ApiTags('User')
+@AuthDecorator()
 export class UserController {
   constructor(private readonly userService: UserService) {}
   @Put('/change-profile')
@@ -50,8 +49,6 @@ export class UserController {
       },
     ),
   )
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth('Authorization')
   @ApiConsumes(SwaggerConsumesEnum.MULTIPART)
   async changeProfile(
     @UploadedOptionalFiles() files: ProfileImages,
@@ -60,21 +57,16 @@ export class UserController {
     return this.userService.changeProfile(files, profileDto);
   }
   @Get('/profile')
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth('Authorization')
+  @CanAccess(Roles.User, Roles.Admin)
   async profile() {
     return this.userService.getProfile();
   }
   @Patch('/change-username')
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth('Authorization')
   @ApiConsumes(SwaggerConsumesEnum.JSON, SwaggerConsumesEnum.FORM)
   async changeUsername(@Body() changeUsernameDto: ChangeUsernameDto) {
     return await this.userService.changeUserName(changeUsernameDto.username);
   }
   @Patch('/change-email')
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth('Authorization')
   @ApiConsumes(SwaggerConsumesEnum.JSON, SwaggerConsumesEnum.FORM)
   async changeEmail(
     @Body() changeEmailDto: ChangeEmailDto,
@@ -90,15 +82,11 @@ export class UserController {
     });
   }
   @Patch('/verify-email')
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth('Authorization')
   @ApiConsumes(SwaggerConsumesEnum.JSON, SwaggerConsumesEnum.FORM)
   async verifyEmail(@Body() verifyEmailDto: VerifyDto) {
     return this.userService.verifyEmail(verifyEmailDto.code);
   }
   @Patch('/change-phone')
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth('Authorization')
   @ApiConsumes(SwaggerConsumesEnum.JSON, SwaggerConsumesEnum.FORM)
   async changePhone(
     @Body() changePhoneDto: ChangePhoneDto,
@@ -115,32 +103,26 @@ export class UserController {
     });
   }
   @Patch('/verify-phone')
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth('Authorization')
   @ApiConsumes(SwaggerConsumesEnum.JSON, SwaggerConsumesEnum.FORM)
   async verifyPhone(@Body() verifyPhoneDto: VerifyDto) {
     return this.userService.verifyPhone(verifyPhoneDto.code);
   }
   @Get('/follow/:id')
-  @AuthDecorator()
   @CanAccess(Roles.Admin, Roles.User)
   async followUser(@Param('id') id: number) {
     return this.userService.followToggle(id);
   }
   @Get('/followers/:username')
-  @AuthDecorator()
   @CanAccess(Roles.Admin, Roles.User)
   async userFollowers(@Param('username') username: string) {
     return this.userService.userFollowers(username);
   }
   @Get('/followings/:username')
-  @AuthDecorator()
   @CanAccess(Roles.Admin, Roles.User)
   async userFollowings(@Param('username') username: string) {
     return this.userService.userFollowings(username);
   }
   @Post('/ban/:username')
-  @AuthDecorator()
   @CanAccess(Roles.Admin)
   async banToggle(@Body() banUserDto: BanUserDto) {
     return this.userService.banToggle(banUserDto);
