@@ -16,7 +16,7 @@ let dataSource = new DataSource({
   password: DBPASSWORD,
   synchronize: false,
   entities: ['dist/**/**/**/*.entity{.ts,.js}', 'dist/**/**/*.entity{.ts,.js}'],
-  migrations: ['dis/src/migrations/*{.ts,.js}'],
+  migrations: ['dist/migrations/*{.ts,.js}'],
   migrationsTableName: 'blog_migration_db',
 });
 export default dataSource;
