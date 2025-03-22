@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BlogEntity } from '../entities/blog.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CreateBlogDto, FilterBlogDto, UpdateBlogDto } from '../dtos/blog.dto';
 import { createSlug, randomId } from 'src/common/utils/functions.util';
 import { request, Request } from 'express';
@@ -51,6 +51,7 @@ export class BlogService {
     private blogCommentRepository: Repository<BlogCommentsEntity>,
     @Inject(forwardRef(() => CommentsService))
     private blogCommentService: CommentsService,
+    private dataSource: DataSource,
     @Inject(REQUEST) private request: Request,
   ) {}
 
@@ -137,11 +138,52 @@ export class BlogService {
         userId: userId,
       }));
     }
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    const suggestedBlogs = await queryRunner.query(`
+      WITH suggested_blogs AS (
+          SELECT
+              blog.id,
+              blog.slug,
+              blog.title,
+              blog.short_desc,
+              blog.time_for_study,
+              blog.image,
+              json_build_object(
+                      'username', u.username,
+                      'author_name', p.nick_name,
+                      'image', p.image_profile
+              ) AS author,
+              array_agg(DISTINCT cat.title) AS categories,
+              (
+              SELECT COUNT(*) FROM blog_likes
+              WHERE blog_likes."blogId" = blog.id
+              ) AS likes,
+              (
+              SELECT COUNT(*) FROM blog_bookmarks
+              WHERE blog_bookmarks."blogId" = blog.id
+              ) AS bookmarks,
+              (
+              SELECT COUNT(*) FROM blog_comments
+              WHERE blog_comments."blogId" = blog.id
+              ) AS comments
+          FROM blog
+          LEFT JOIN public.user u ON blog."authorId" = u.id
+          LEFT JOIN public.${EntityNames.Profile} p ON p."userId" = u.id
+          LEFT JOIN public.${EntityNames.BlogCategory} bc ON blog.id = bc."blogId"
+          LEFT JOIN public.${EntityNames.Category} cat ON bc."categoryId" = cat.id
+          GROUP BY blog.id, u.username, p.nick_name, p.image_profile
+          ORDER BY RANDOM()
+          LIMIT 3
+      )
+      SELECT * FROM suggested_blogs;
+    `);
     return {
       blog,
       isLiked,
       isBookmarked,
       comments,
+      suggestedBlogs,
     };
   }
   async checkExistBySlug(slug: string) {
