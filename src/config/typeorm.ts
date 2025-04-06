@@ -14,7 +14,7 @@ let dataSource = new DataSource({
   host: DBHOST,
   username: DBUSERNAME,
   password: DBPASSWORD,
-  synchronize: false,
+  synchronize: true,
   entities: ['dist/**/**/**/*.entity{.ts,.js}', 'dist/**/**/*.entity{.ts,.js}'],
   migrations: ['dist/migrations/*{.ts,.js}'],
   migrationsTableName: 'blog_migration_db',
