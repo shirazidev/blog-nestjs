@@ -1,33 +1,23 @@
-import { TokenService } from './tokens.service';
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  Scope,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { AuthDto, CheckOtpDto } from './dto/auth.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity } from '../user/entities/user.entity';
-import { Repository } from 'typeorm';
-import { AuthTypeEnum } from './enums/type.enum';
-import { AuthMethod } from './enums/method.enum';
-import { isEmail, isMobilePhone } from 'class-validator';
-import { ProfileEntity } from '../user/entities/profile.entity';
-import {
-  AuthMessage,
-  BadRequestMessage,
-  PublicMessage,
-} from 'src/common/enums/message.enum';
-import { OtpEntity } from '../user/entities/otp.entity';
-import { randomInt } from 'crypto';
-import { Request, Response } from 'express';
-import { cookieKeys } from 'src/common/enums/cookie.enum';
-import { AuthResponse, GoogleUser } from './types/response';
-import { REQUEST } from '@nestjs/core';
-import { CookiesOptionsToken } from 'src/common/utils/cookie.util';
-import { KavenegarService } from '../http/kavenegar.service';
-import { randomId } from '../../common/utils/functions.util';
+import { TokenService } from "./tokens.service";
+import { BadRequestException, Inject, Injectable, Scope, UnauthorizedException } from "@nestjs/common";
+import { AuthDto, CheckOtpDto } from "./dto/auth.dto";
+import { InjectRepository } from "@nestjs/typeorm";
+import { UserEntity } from "../user/entities/user.entity";
+import { Repository } from "typeorm";
+import { AuthTypeEnum } from "./enums/type.enum";
+import { AuthMethod } from "./enums/method.enum";
+import { isEmail, isMobilePhone } from "class-validator";
+import { ProfileEntity } from "../user/entities/profile.entity";
+import { AuthMessage, BadRequestMessage, PublicMessage } from "src/common/enums/message.enum";
+import { OtpEntity } from "../user/entities/otp.entity";
+import { randomInt } from "crypto";
+import { Request, Response } from "express";
+import { cookieKeys } from "src/common/enums/cookie.enum";
+import { AuthResponse, GoogleUser } from "./types/response";
+import { REQUEST } from "@nestjs/core";
+import { CookiesOptionsToken } from "src/common/utils/cookie.util";
+import { KavenegarService } from "../http/kavenegar.service";
+import { randomId } from "../../common/utils/functions.util";
 
 @Injectable({ scope: Scope.REQUEST })
 export class AuthService {
@@ -55,7 +45,7 @@ export class AuthService {
         await this.sendOtp(method, username, result.otpcode);
         return this.sendResponse(result, res);
       default:
-        throw new UnauthorizedException('Invalid auth type');
+        throw new UnauthorizedException("Invalid auth type");
     }
   }
   async sendOtp(method: AuthMethod, username: string, code: string) {
@@ -80,8 +70,7 @@ export class AuthService {
     const validUsername = this.usernameValidator(username, method);
     let user: UserEntity = await this.checkExistUser(method, validUsername);
     if (user) throw new UnauthorizedException(AuthMessage.InvalidAuthType);
-    if (method === AuthMethod.Username)
-      throw new UnauthorizedException(BadRequestMessage.InvalidRegisterData);
+    if (method === AuthMethod.Username) throw new UnauthorizedException(BadRequestMessage.InvalidRegisterData);
     user = this.userRepository.create({ [method]: username });
     user = await this.userRepository.save(user);
     await this.userRepository.update(user.id, { username: `m_${user.id}=` });
@@ -109,8 +98,7 @@ export class AuthService {
     let otp = await this.otpRepository.findOneBy({ userId: userId });
     let existOtp = false;
     if (otp) {
-      if (otp.expires_in > new Date())
-        throw new UnauthorizedException(AuthMessage.OtpNotExpired);
+      if (otp.expires_in > new Date()) throw new UnauthorizedException(AuthMessage.OtpNotExpired);
       existOtp = true;
       otp.code = code;
       otp.expires_in = expires_in;
@@ -133,16 +121,14 @@ export class AuthService {
     const { userId } = this.tokenService.verifyOtpToken(token);
     const otp = await this.otpRepository.findOneBy({ userId });
     const now = new Date();
-    if (!otp || otp.code !== code || otp.expires_in < now)
-      throw new UnauthorizedException(AuthMessage.ExpiredCode);
+    if (!otp || otp.code !== code || otp.expires_in < now) throw new UnauthorizedException(AuthMessage.ExpiredCode);
 
     user = await this.userRepository.findOneBy({ id: userId });
     let payload = {
       userId: user?.id,
       username: user?.username,
     };
-    const { accessToken, refreshToken } =
-      this.tokenService.createJwtToken(payload);
+    const { accessToken, refreshToken } = this.tokenService.createJwtToken(payload);
     if (otp.method === AuthMethod.Email) {
       await this.userRepository.update(
         { id: userId },
@@ -178,15 +164,15 @@ export class AuthService {
     switch (method) {
       case AuthMethod.Email:
         if (isEmail(username)) return username;
-        throw new BadRequestException('Invalid email');
+        throw new BadRequestException("Invalid email");
       case AuthMethod.Phone:
-        if (isMobilePhone(username, 'fa-IR')) return username;
-        throw new BadRequestException('Invalid phone number');
+        if (isMobilePhone(username, "fa-IR")) return username;
+        throw new BadRequestException("Invalid phone number");
       case AuthMethod.Username:
         return username;
 
       default:
-        throw new UnauthorizedException('Invalid username data');
+        throw new UnauthorizedException("Invalid username data");
     }
   }
   async validateAccessToken(token: string) {
@@ -222,7 +208,7 @@ export class AuthService {
       user = this.userRepository.create({
         email,
         verifyEmail: true,
-        username: email.split('@')['0'] + randomId(),
+        username: email.split("@")["0"] + randomId(),
       });
       user = await this.userRepository.save(user);
       let profile = this.profileRepository.create({
