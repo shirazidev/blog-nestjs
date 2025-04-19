@@ -9,7 +9,7 @@ export function TypeOrmDbConfig(): TypeOrmModuleOptions {
     host: DBHOST,
     username: DBUSERNAME,
     password: DBPASSWORD,
-    synchronize: true,
+    synchronize: false,
     entities: [
       'dist/**/**/**/*.entity{.ts,.js}',
       'dist/**/**/*.entity{.ts,.js}',

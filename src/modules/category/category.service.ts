@@ -1,23 +1,12 @@
-import { PaginationDto } from 'src/common/dtos/pagination.dto';
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { CreateCategoryDto } from './dto/create-category.dto';
-import { UpdateCategoryDto } from './dto/update-category.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { CategoryEntity } from './entities/category.entity';
-import { Repository } from 'typeorm';
-import {
-  ConflictMessage,
-  NotFoundMessage,
-  PublicMessage,
-} from 'src/common/enums/message.enum';
-import {
-  paginationGenerator,
-  paginationSolver,
-} from 'src/common/utils/pagination.util';
+import { PaginationDto } from "src/common/dtos/pagination.dto";
+import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
+import { CreateCategoryDto } from "./dto/create-category.dto";
+import { UpdateCategoryDto } from "./dto/update-category.dto";
+import { InjectRepository } from "@nestjs/typeorm";
+import { CategoryEntity } from "./entities/category.entity";
+import { Repository } from "typeorm";
+import { ConflictMessage, NotFoundMessage, PublicMessage } from "src/common/enums/message.enum";
+import { paginationGenerator, paginationSolver } from "src/common/utils/pagination.util";
 
 @Injectable()
 export class CategoryService {
@@ -55,8 +44,7 @@ export class CategoryService {
 
   async findOne(id: number) {
     const category = await this.categoryRepository.findOneBy({ id });
-    if (!category)
-      throw new NotFoundException(NotFoundMessage.NotFoundCategory);
+    if (!category) throw new NotFoundException(NotFoundMessage.NotFoundCategory);
     return category;
   }
   async findOneByTitle(title: string) {
