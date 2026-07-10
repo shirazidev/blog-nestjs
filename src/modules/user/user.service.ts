@@ -101,14 +101,19 @@ export class UserService {
     if (!user) {
       throw new UnauthorizedException(AuthMessage.LoginIsRequired);
     }
-    return this.userRepository
+    const userResult = await this.userRepository
       .createQueryBuilder(EntityNames.User)
       .addSelect('profile')
       .leftJoinAndSelect('user.profile', 'profile')
-      .loadRelationCountAndMap('user.followers', 'user.followers')
-      .loadRelationCountAndMap('user.followings', 'user.followings')
       .where({ id: user.id })
       .getOne();
+    
+    if (userResult) {
+      userResult.followers = await this.followRepository.count({ where: { followingId: user.id } }) as any;
+      userResult.followings = await this.followRepository.count({ where: { followerId: user.id } }) as any;
+    }
+
+    return userResult;
   }
   async changeUserName(username: string) {
     const req = this.req.user;

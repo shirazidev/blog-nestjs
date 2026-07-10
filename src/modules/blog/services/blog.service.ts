@@ -118,9 +118,12 @@ export class BlogService {
         'author.id',
       ])
       .where('blog.slug = :slug', { slug })
-      .loadRelationCountAndMap('blog.likes', 'blog.likes')
-      .loadRelationCountAndMap('blog.bookmarks', 'blog.bookmarks')
       .getOne();
+
+    if (blog) {
+      blog.likes = await this.blogLikeRepository.count({ where: { blogId: blog.id } }) as any;
+      blog.bookmarks = await this.blogBookmarkRepository.count({ where: { blogId: blog.id } }) as any;
+    }
     if (!blog) throw new NotFoundException(NotFoundMessage.NotFoundBlog);
     const comments = await this.blogCommentService.findPostComments(
       blog.id,
@@ -246,18 +249,16 @@ export class BlogService {
         'author.id',
       ])
       .where(where, parameters)
-      .loadRelationCountAndMap('blog.likes', 'blog.likes')
-      .loadRelationCountAndMap('blog.bookmarks', 'blog.bookmarks')
-      .loadRelationCountAndMap(
-        'blog.comments',
-        'blog.comments',
-        'comments',
-        (qb) => qb.where('comments.accepted = :accepted', { accepted: true }),
-      )
       .orderBy('blog.id', 'DESC')
       .skip(skip)
       .take(limit)
       .getManyAndCount();
+
+    for (const blog of blogs) {
+      blog.likes = await this.blogLikeRepository.count({ where: { blogId: blog.id } }) as any;
+      blog.bookmarks = await this.blogBookmarkRepository.count({ where: { blogId: blog.id } }) as any;
+      blog.comments = await this.blogCommentRepository.count({ where: { blogId: blog.id, accepted: true } }) as any;
+    }
 
     return { pagination: paginationGenerator(count, limit, page), blogs };
   }
